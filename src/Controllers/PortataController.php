@@ -25,7 +25,7 @@ class PortataController
         $menuId = (int) ($_POST['menu_id'] ?? 0);
         $nome = trim((string) ($_POST['nome'] ?? ''));
         $gruppo = ($_POST['gruppo_impaginato'] ?? 'principale') === 'dolci_drink' ? 'dolci_drink' : 'principale';
-        $suffisso = trim((string) ($_POST['suffisso_export'] ?? ''));
+        $suffisso = $this->suffissoDaPost();
 
         if ($menuId <= 0 || $nome === '') {
             flash('errore', 'Nome portata obbligatorio.');
@@ -50,7 +50,7 @@ class PortataController
         }
         $nome = trim((string) ($_POST['nome'] ?? ''));
         $gruppo = ($_POST['gruppo_impaginato'] ?? 'principale') === 'dolci_drink' ? 'dolci_drink' : 'principale';
-        $suffisso = trim((string) ($_POST['suffisso_export'] ?? ''));
+        $suffisso = $this->suffissoDaPost();
         if ($nome === '') {
             flash('errore', 'Nome portata obbligatorio.');
             redirect('/menu/' . $portata['menu_id']);
@@ -75,6 +75,17 @@ class PortataController
         $this->portataRepo->delete($id);
         flash('ok', 'Portata eliminata (con tutti i suoi piatti).');
         redirect('/menu/' . $menuId);
+    }
+
+    /**
+     * A differenza degli altri campi, il suffisso export NON va trimmato: uno spazio iniziale
+     * (es. " e contorni") è intenzionale e va preservato. Considera vuoto solo un valore che è
+     * tutto spazi/assente.
+     */
+    private function suffissoDaPost(): string
+    {
+        $grezzo = (string) ($_POST['suffisso_export'] ?? '');
+        return trim($grezzo) === '' ? '' : $grezzo;
     }
 
     public function riordina(): void

@@ -14,8 +14,8 @@
 
 <form method="post" action="/piatti/<?= (int) $piatto['id'] ?>/foto" enctype="multipart/form-data" class="card">
     <?= Csrf::field() ?>
-    <label for="foto">Carica nuova foto (anche dalla fotocamera del telefono)</label>
-    <input type="file" id="foto" name="foto" accept="image/*" capture="environment" required>
+    <label for="foto">Carica nuova foto (tocca per scattare o scegliere dalla libreria)</label>
+    <input type="file" id="foto" name="foto" accept="image/*" required>
     <div style="margin-top:0.8rem;">
         <button type="submit">Carica</button>
         <a class="btn btn-secondario" href="/menu/<?= (int) $piatto['menu_id'] ?>">Annulla</a>

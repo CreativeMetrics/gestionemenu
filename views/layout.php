@@ -17,8 +17,10 @@ $nomeLocale = config_get('app', [])['nome_locale'] ?? 'Gestione Menu';
 </head>
 <body>
 <header class="app-header">
-    <a href="/">🍽 <?= e($nomeLocale) ?></a>
+    <a href="/" class="app-brand">🍽 <?= e($nomeLocale) ?></a>
     <?php if ($utente): ?>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
+    <label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">☰</label>
     <nav class="app-nav">
         <a href="/">Menu</a>
         <a href="/foto/mancanti">Foto mancanti</a>
