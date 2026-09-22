@@ -37,6 +37,11 @@ class UserRepository
         return Db::conn()->query('SELECT * FROM users ORDER BY nome')->fetchAll();
     }
 
+    public function count(): int
+    {
+        return (int) Db::conn()->query('SELECT COUNT(*) FROM users')->fetchColumn();
+    }
+
     public function create(string $nome, string $email, string $password, string $ruolo): int
     {
         $stmt = Db::conn()->prepare(

@@ -11,6 +11,7 @@ use App\Controllers\MenuController;
 use App\Controllers\PiattoController;
 use App\Controllers\PortataController;
 use App\Controllers\SettingsController;
+use App\Controllers\SetupController;
 use App\Controllers\UserController;
 use App\Support\Router;
 
@@ -32,6 +33,10 @@ $router = new Router();
 $router->get('/login', fn () => (new AuthController())->loginForm());
 $router->post('/login', fn () => (new AuthController())->login());
 $router->get('/logout', fn () => (new AuthController())->logout());
+
+// Setup iniziale (creazione primo admin dal browser, disponibile solo se non ci sono ancora utenti)
+$router->get('/setup', fn () => (new SetupController())->form());
+$router->post('/setup', fn () => (new SetupController())->crea());
 
 // Menu e stagioni
 $router->get('/', fn () => (new MenuController())->index());

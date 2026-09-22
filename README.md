@@ -41,11 +41,10 @@ config/             configurazione (config.local.php da creare, non versionato)
 
 1. In Plesk → Database, crea un nuovo database MySQL/MariaDB (es. `gestionemenu`) e un utente con
    tutti i permessi su quel database.
-2. Importa lo schema: da Plesk (phpMyAdmin → Importa) oppure da SSH:
-   ```
-   mysql -u <utente> -p <nome_database> < migrations/schema.sql
-   ```
-   Questo crea le tabelle e precompila i 14 allergeni UE e le impostazioni di export di default.
+2. Importa lo schema: apri **phpMyAdmin** dal pannello Plesk (Database → il tuo database →
+   phpMyAdmin), scheda **Importa**, seleziona il file `migrations/schema.sql` del progetto e
+   conferma. Non serve SSH: phpMyAdmin è sempre incluso in Plesk. Questo crea le tabelle e
+   precompila i 14 allergeni UE e le impostazioni di export di default.
 
 ### 1.3 Configurazione applicazione
 
@@ -54,36 +53,39 @@ config/             configurazione (config.local.php da creare, non versionato)
    del locale.
 2. Verifica che `config/config.local.php` NON sia raggiungibile dal browser (è fuori da `public/`,
    quindi già protetto se il document root è impostato correttamente al punto 1.1).
-3. Crea la cartella upload foto se non esiste già e assicurati che sia scrivibile dall'utente PHP:
-   ```
-   mkdir -p public/uploads/piatti
-   chmod 775 public/uploads/piatti
-   ```
-   (su Plesk in genere il proprietario corretto è l'utente di sistema del dominio: usa il File
-   Manager di Plesk o `chown` via SSH se necessario).
+3. La cartella `public/uploads/piatti/` è già inclusa nel codice caricato e normalmente è già
+   scrivibile dall'utente PHP del dominio (è lo stesso utente che possiede tutti i file caricati).
+   Se al primo caricamento di una foto ricevi un errore di permessi, apri il **File Manager** di
+   Plesk, seleziona `public/uploads/piatti/` e imposta i permessi a 775 (non serve SSH).
 
 ### 1.4 Primo utente amministratore
 
-Non c'è una pagina di registrazione pubblica (per sicurezza, dato che gli utenti sono solo 2-3).
-Crea il primo admin da SSH:
+Non c'è una pagina di registrazione pubblica (per sicurezza, dato che gli utenti sono solo 2-3),
+ma non serve SSH per creare il primo admin: **apri semplicemente `https://menu.tuodominio.it/setup`
+nel browser**, subito dopo aver importato lo schema. Questa pagina funziona solo finché il database
+non ha ancora nessun utente: compila nome, email e password e verrai loggato automaticamente come
+amministratore. Dopo la creazione del primo utente la pagina `/setup` si disattiva da sola (mostra
+solo un rimando alla pagina di login) e non è più utilizzabile, quindi visitala subito dopo
+l'importazione dello schema, prima di comunicare in giro l'indirizzo del sottodominio.
 
+Da lì potrai creare l'utente per il cliente/staff (ruolo `editor`) direttamente dal pannello
+**Impostazioni → Utenti**, sempre dal browser.
+
+Se invece hai accesso SSH (o al terminale incluso in alcuni piani Plesk), in alternativa puoi usare:
 ```
 php cron/crea_utente.php "Il Tuo Nome" tuamail@esempio.it "PasswordSicura123" admin
 ```
-
-Da lì potrai creare l'utente per il cliente/staff (ruolo `editor`) direttamente dal pannello
-**Impostazioni → Utenti**.
+Questo stesso script, senza SSH, si può anche lanciare **una tantum** da Plesk → Pianifica attività
+(lo stesso strumento usato per il cron stagionale al punto 1.5): crea un'attività "Esegui subito",
+comando `php cron/crea_utente.php ...`, e cancellala dopo l'esecuzione. Ma per il caso normale la
+pagina `/setup` nel browser è la via più semplice.
 
 ### 1.5 Cron: creazione automatica del menu stagionale
 
-In Plesk → Pianifica attività (cron), aggiungi un job giornaliero:
-
-```
-php /var/www/vhosts/tuodominio.it/gestionemenu/cron/crea_menu_stagione.php
-```
-
-(adatta il percorso a dove hai effettivamente caricato il progetto). Esecuzione consigliata: una
-volta al giorno, ad es. alle 4:00. Lo script:
+Non serve SSH: in Plesk → **Pianifica attività**, clicca "Aggiungi attività", scegli "Esegui un
+file PHP", seleziona `cron/crea_menu_stagione.php` dal selettore file (Plesk mostra la struttura
+delle cartelle del tuo dominio, quindi non devi scrivere a mano il percorso assoluto), e imposta la
+frequenza su giornaliera (es. ogni notte alle 4:00). Lo script:
 
 - calcola la stagione successiva rispetto all'ultimo menu esistente;
 - se siamo entrati nella finestra dei 30 giorni prima del suo inizio (20/3, 21/6, 23/9, 21/12) e il
@@ -93,10 +95,14 @@ volta al giorno, ad es. alle 4:00. Lo script:
 
 ### 1.6 Backup
 
-- **Database**: esporta con `mysqldump -u <utente> -p <database> > backup.sql` (schedulabile anche
-  questo da cron di Plesk, o usa il backup automatico del database che Plesk offre).
+Nessuno dei due richiede SSH:
+
+- **Database**: da phpMyAdmin (Plesk → Database → phpMyAdmin), scheda **Esporta**, scarica il
+  file `.sql`. Oppure usa **Plesk → Backup Manager**, che se configurato include automaticamente
+  anche il database nei backup pianificati del dominio.
 - **Foto**: la cartella `public/uploads/piatti/` va copiata/backuppata insieme al database (le foto
-  non sono nel DB, solo il nome file).
+  non sono nel DB, solo il nome file) — il Backup Manager di Plesk la include già se fai un backup
+  completo del dominio; altrimenti scaricala periodicamente via File Manager o FTP/SFTP.
 
 ---
 
