@@ -87,6 +87,8 @@ class SeasonService
                     ]);
                     if (!empty($piatto['foto_path'])) {
                         $this->piattoRepo->setFoto($nuovoPiattoId, $piatto['foto_path']);
+                    } elseif (!empty($piatto['foto_esterna'])) {
+                        $this->piattoRepo->setFotoEsterna($nuovoPiattoId, true);
                     }
                     $allergeni = $this->piattoRepo->allergeniIds((int) $piatto['id']);
                     $this->piattoRepo->setAllergeni($nuovoPiattoId, $allergeni);

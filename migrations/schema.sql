@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS piatti (
     note_interne TEXT NULL,
     ordine INT NOT NULL DEFAULT 0,
     foto_path VARCHAR(255) NULL,
+    foto_esterna TINYINT(1) NOT NULL DEFAULT 0,
     creato_da INT UNSIGNED NULL,
     aggiornato_da INT UNSIGNED NULL,
     creato_il DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

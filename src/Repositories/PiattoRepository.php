@@ -90,8 +90,15 @@ class PiattoRepository
 
     public function setFoto(int $id, ?string $percorso): void
     {
-        $stmt = Db::conn()->prepare('UPDATE piatti SET foto_path = ? WHERE id = ?');
+        $stmt = Db::conn()->prepare('UPDATE piatti SET foto_path = ?, foto_esterna = 0 WHERE id = ?');
         $stmt->execute([$percorso, $id]);
+    }
+
+    /** Segna/rimuove il flag "foto già presente altrove" (esclude/include il piatto da "Foto mancanti"). */
+    public function setFotoEsterna(int $id, bool $esterna): void
+    {
+        $stmt = Db::conn()->prepare('UPDATE piatti SET foto_esterna = ? WHERE id = ?');
+        $stmt->execute([$esterna ? 1 : 0, $id]);
     }
 
     public function prossimoOrdine(int $portataId): int
@@ -136,12 +143,15 @@ class PiattoRepository
         return $stmt->fetchAll();
     }
 
-    /** Foto mancanti per un menu (tutti i piatti senza foto_path). @return array<int, array<string, mixed>> */
+    /**
+     * Foto mancanti per un menu: piatti senza foto_path e non segnati come "foto già presente
+     * altrove". @return array<int, array<string, mixed>>
+     */
     public function senzaFotoPerMenu(int $menuId): array
     {
         $sql = 'SELECT p.*, po.nome AS portata_nome FROM piatti p
                 JOIN portate po ON po.id = p.portata_id
-                WHERE po.menu_id = ? AND (p.foto_path IS NULL OR p.foto_path = "")
+                WHERE po.menu_id = ? AND (p.foto_path IS NULL OR p.foto_path = "") AND p.foto_esterna = 0
                 ORDER BY po.ordine, p.ordine';
         $stmt = Db::conn()->prepare($sql);
         $stmt->execute([$menuId]);

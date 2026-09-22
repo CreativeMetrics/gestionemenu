@@ -25,6 +25,17 @@ config/             configurazione (config.local.php da creare, non versionato)
 
 ---
 
+## 0. Aggiornare un'installazione già esistente
+
+Ogni volta che carichi file nuovi/modificati sul server (vedi l'elenco che ti viene indicato di
+volta in volta), controlla anche se c'è una nuova cartella `migrations/NNN_*.sql`: se c'è, vuol
+dire che quella modifica ha bisogno anche di una modifica al database, da fare **una sola volta**
+da phpMyAdmin (Plesk → Database → phpMyAdmin → scheda **SQL** → incolla il contenuto del file → Esegui).
+`migrations/schema.sql` resta invece solo per le installazioni nuove da zero: non va rieseguito su
+un database già esistente.
+
+---
+
 ## 1. Deploy su Plesk
 
 ### 1.1 Dominio/sottodominio

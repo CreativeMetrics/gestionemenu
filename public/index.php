@@ -66,6 +66,7 @@ $router->get('/piatti/{id}/storico', fn ($p) => (new PiattoController())->storic
 $router->get('/piatti/{id}/foto', fn ($p) => (new FotoController())->form($p));
 $router->post('/piatti/{id}/foto', fn ($p) => (new FotoController())->carica($p));
 $router->post('/piatti/{id}/foto/rimuovi', fn ($p) => (new FotoController())->rimuovi($p));
+$router->post('/piatti/{id}/foto/esterna', fn ($p) => (new FotoController())->segnaEsterna($p));
 $router->get('/foto/mancanti', fn () => (new FotoController())->mancanti());
 
 // Import CSV

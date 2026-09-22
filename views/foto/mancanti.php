@@ -1,3 +1,4 @@
+<?php use App\Csrf; ?>
 <h1>Foto piatti mancanti</h1>
 
 <?php if (empty($menus)): ?>
@@ -19,15 +20,29 @@
 </form>
 
 <?php if (empty($piatti)): ?>
-    <p>Tutti i piatti di questo menu hanno una foto. 🎉</p>
+    <p>Tutti i piatti di questo menu hanno una foto (o sono segnati come già presenti). 🎉</p>
+<?php else: ?>
+    <p class="help-text">
+        Hai già una foto per questo piatto altrove (es. usata direttamente in InDesign) e non vuoi
+        caricarla qui? Usa "Segna come già presente": il piatto sparisce da questo elenco senza
+        bisogno di un file.
+    </p>
 <?php endif; ?>
 
 <?php foreach ($piatti as $p): ?>
-    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:0.6rem; flex-wrap:wrap;">
         <div>
             <strong><?= e($p['nome']) ?></strong>
             <div class="help-text"><?= e($p['portata_nome']) ?></div>
         </div>
-        <a class="btn btn-small" href="/piatti/<?= (int) $p['id'] ?>/foto">Aggiungi foto</a>
+        <div class="piatto-azioni">
+            <a class="btn btn-small" href="/piatti/<?= (int) $p['id'] ?>/foto">Aggiungi foto</a>
+            <form method="post" action="/piatti/<?= (int) $p['id'] ?>/foto/esterna" style="display:inline;">
+                <?= Csrf::field() ?>
+                <input type="hidden" name="esterna" value="1">
+                <input type="hidden" name="origine" value="mancanti">
+                <button type="submit" class="btn btn-small btn-secondario">Segna come già presente</button>
+            </form>
+        </div>
     </div>
 <?php endforeach; ?>

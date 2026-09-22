@@ -66,6 +66,8 @@ $titolo = stagione_label($menu['stagione']) . ' ' . $menu['anno'];
                     <?php if (!$soloLettura): ?><div class="piatto-maniglia no-print">☰</div><?php endif; ?>
                     <?php if (!empty($piatto['foto_path'])): ?>
                         <img class="piatto-thumb" src="/uploads/piatti/<?= e($piatto['foto_path']) ?>" alt="">
+                    <?php elseif (!empty($piatto['foto_esterna'])): ?>
+                        <div class="piatto-thumb-placeholder" title="Foto già presente altrove">foto esterna</div>
                     <?php else: ?>
                         <div class="piatto-thumb-placeholder">no foto</div>
                     <?php endif; ?>

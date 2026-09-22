@@ -74,6 +74,34 @@ class FotoController
         redirect('/piatti/' . $id . '/foto');
     }
 
+    /**
+     * Segna (o toglie il segno) "foto già presente altrove": esclude il piatto dalla lista
+     * "Foto mancanti" senza dover caricare un file, per chi ha già foto usate direttamente in
+     * InDesign e non gestite da questa app.
+     */
+    public function segnaEsterna(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyOrFail();
+        $id = (int) $params['id'];
+        $piatto = $this->piattoRepo->findConMenu($id);
+        if (!$piatto) {
+            http_response_code(404);
+            die('Piatto non trovato.');
+        }
+        $esterna = ($_POST['esterna'] ?? '1') === '1';
+        $this->piattoRepo->setFotoEsterna($id, $esterna);
+        flash('ok', $esterna
+            ? 'Piatto segnato come "foto già presente altrove": non comparirà più tra le foto mancanti.'
+            : 'Segnalazione rimossa: il piatto torna tra le foto mancanti.');
+
+        if (($_POST['origine'] ?? '') === 'mancanti') {
+            redirect('/foto/mancanti?menu_id=' . (int) $piatto['menu_id']);
+        } else {
+            redirect('/piatti/' . $id . '/foto');
+        }
+    }
+
     public function mancanti(): void
     {
         Auth::requireLogin();
