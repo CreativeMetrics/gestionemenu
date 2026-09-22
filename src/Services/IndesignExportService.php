@@ -8,7 +8,11 @@ use App\Repositories\PortataRepository;
 
 /**
  * Genera un file InDesign Tagged Text (.txt) per un menu, con stili di paragrafo per
- * portata/nome piatto/descrizione/prezzo e stile carattere + font locale per le icone allergeni.
+ * portata/nome piatto/prezzo e stile carattere + font locale per le icone allergeni.
+ *
+ * Nome piatto e descrizione condividono lo stesso paragrafo/stile (separati da un a-capo forzato):
+ * nel documento reale non esiste uno stile "Descrizione" distinto, il piatto è un blocco unico
+ * basato sullo stile del nome.
  *
  * Nota sul font "Allergen Outline": non usa codepoint Unicode dedicati, ogni icona corrisponde a
  * una normale lettera maiuscola digitata con quel font (vedi allergeni.glifo_unicode).
@@ -35,7 +39,6 @@ class IndesignExportService
 
         $stilePortata = $imp['indesign_stile_portata'] ?? 'Portata';
         $stilePiatto = $imp['indesign_stile_piatto'] ?? 'NomePiatto';
-        $stileDescrizione = $imp['indesign_stile_descrizione'] ?? 'Descrizione';
         $stilePrezzo = $imp['indesign_stile_prezzo'] ?? 'Prezzo';
         $stileCarattereAllergeni = $imp['indesign_stile_carattere_allergeni'] ?? 'IconeAllergeni';
         $fontAllergeni = $imp['indesign_font_allergeni'] ?? 'Allergen';
@@ -56,11 +59,11 @@ class IndesignExportService
             $righe[] = "<ParaStyle:{$stilePortata}>" . $this->escape($portata['nome']);
 
             foreach ($piatti as $piatto) {
-                $righe[] = "<ParaStyle:{$stilePiatto}>" . $this->escape($piatto['nome']);
-
+                $nomeEDescrizione = $this->escape($piatto['nome']);
                 if (!empty($piatto['descrizione'])) {
-                    $righe[] = "<ParaStyle:{$stileDescrizione}>" . $this->escapeMultilinea($piatto['descrizione']);
+                    $nomeEDescrizione .= '<0x2028>' . $this->escapeMultilinea($piatto['descrizione']);
                 }
+                $righe[] = "<ParaStyle:{$stilePiatto}>" . $nomeEDescrizione;
 
                 $lineaPrezzo = "<ParaStyle:{$stilePrezzo}>" . $this->escape($piatto['prezzo_testo']);
 
@@ -72,7 +75,7 @@ class IndesignExportService
                 }
                 if ($lettere !== '') {
                     $lineaPrezzo .= '  '
-                        . "<CharStyle:{$stileCarattereAllergeni}><cFont:{$fontAllergeni}><cFontStyle:{$fontStyleAllergeni}>"
+                        . "<CharStyle:{$stileCarattereAllergeni}><cFont:{$fontAllergeni}><cTypeface:{$fontStyleAllergeni}>"
                         . $this->escape($lettere)
                         . '<CharStyle:>';
                 }

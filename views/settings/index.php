@@ -26,14 +26,14 @@
         </div>
         <div class="form-riga">
             <div>
-                <label for="indesign_stile_descrizione">Stile paragrafo — Descrizione</label>
-                <input type="text" name="indesign_stile_descrizione" id="indesign_stile_descrizione" value="<?= e($impostazioni['indesign_stile_descrizione']) ?>">
-            </div>
-            <div>
                 <label for="indesign_stile_prezzo">Stile paragrafo — Prezzo</label>
                 <input type="text" name="indesign_stile_prezzo" id="indesign_stile_prezzo" value="<?= e($impostazioni['indesign_stile_prezzo']) ?>">
             </div>
         </div>
+        <p class="help-text">
+            La descrizione del piatto (quando c'è) condivide lo stesso stile del nome, su una riga
+            a parte all'interno dello stesso paragrafo — non serve uno stile a parte.
+        </p>
         <div class="form-riga">
             <div>
                 <label for="indesign_stile_carattere_allergeni">Stile carattere — icone allergeni</label>

@@ -34,7 +34,7 @@ class SettingsController
         Csrf::verifyOrFail();
         $campi = [
             'indesign_encoding', 'indesign_stile_portata', 'indesign_stile_piatto',
-            'indesign_stile_descrizione', 'indesign_stile_prezzo', 'indesign_stile_carattere_allergeni',
+            'indesign_stile_prezzo', 'indesign_stile_carattere_allergeni',
             'indesign_font_allergeni', 'indesign_fontstyle_allergeni',
         ];
         $valori = [];

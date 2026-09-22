@@ -119,11 +119,12 @@ ON DUPLICATE KEY UPDATE nome = VALUES(nome);
 -- indesign_font_allergeni / indesign_fontstyle_allergeni: font/stile locale applicato alle lettere-icona
 -- (in aggiunta allo stile carattere nominato, così le icone sono corrette anche se lo stile carattere
 -- non è stato ancora creato nel documento InDesign).
+-- Nome piatto e descrizione condividono lo stesso stile/paragrafo (vedi IndesignExportService):
+-- non c'è una chiave 'indesign_stile_descrizione' separata.
 INSERT INTO impostazioni (chiave, valore) VALUES
     ('indesign_encoding', 'UNICODE-WIN'),
     ('indesign_stile_portata', 'Portata'),
     ('indesign_stile_piatto', 'NomePiatto'),
-    ('indesign_stile_descrizione', 'Descrizione'),
     ('indesign_stile_prezzo', 'Prezzo'),
     ('indesign_stile_carattere_allergeni', 'IconeAllergeni'),
     ('indesign_font_allergeni', 'Allergen'),
