@@ -48,7 +48,28 @@
                 <input type="text" name="indesign_fontstyle_allergeni" id="indesign_fontstyle_allergeni" value="<?= e($impostazioni['indesign_fontstyle_allergeni']) ?>">
             </div>
         </div>
+        <p class="help-text">
+            Importante: in InDesign lo stile carattere sopra va creato <strong>con il font già
+            impostato al suo interno</strong> (Famiglia: quella indicata in "Font icone allergeni",
+            Stile: quella indicata in "Stile font"), non lasciato vuoto — altrimenti le icone
+            potrebbero non comparire con l'aspetto giusto.
+        </p>
         <div style="margin-top:1rem;"><button type="submit">Salva stili</button></div>
+    </form>
+</div>
+
+<div class="card">
+    <h2 style="margin-top:0; font-size:1.05rem;">Correggi formato prezzi già importati</h2>
+    <p class="help-text">
+        Il formato giusto per i prezzi nell'impaginato è "numero€" (es. <code>17€</code>, supplementi
+        <code>20€ +7,5€</code>). Se hai importato piatti prima che questa correzione fosse disponibile,
+        i loro prezzi potrebbero essere ancora nel vecchio formato (es. <code>17</code> senza €, o
+        <code>€ 20 / +€ 7,5</code>). Questo pulsante li sistema tutti in un click, senza toccare
+        prezzi già corretti o scritti a mano in un formato diverso.
+    </p>
+    <form method="post" action="/impostazioni/correggi-prezzi">
+        <?= Csrf::field() ?>
+        <button type="submit" class="btn-secondario">Correggi formato prezzi</button>
     </form>
 </div>
 

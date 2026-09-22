@@ -6,17 +6,20 @@ use App\Auth;
 use App\Csrf;
 use App\Repositories\AllergeneRepository;
 use App\Repositories\ImpostazioniRepository;
+use App\Services\PrezzoRepairService;
 use App\Support\View;
 
 class SettingsController
 {
     private ImpostazioniRepository $impostazioniRepo;
     private AllergeneRepository $allergeneRepo;
+    private PrezzoRepairService $prezzoRepairService;
 
     public function __construct()
     {
         $this->impostazioniRepo = new ImpostazioniRepository();
         $this->allergeneRepo = new AllergeneRepository();
+        $this->prezzoRepairService = new PrezzoRepairService();
     }
 
     public function index(): void
@@ -54,6 +57,22 @@ class SettingsController
             $this->allergeneRepo->updateGlifo((int) $allergeneId, trim((string) $glifo));
         }
         flash('ok', 'Mappa allergene → glifo aggiornata.');
+        redirect('/impostazioni');
+    }
+
+    /**
+     * Corregge una tantum il formato dei prezzi dei piatti importati prima di scoprire, dall'IDML
+     * reale, il formato giusto (numero + €). Riconosce solo i vecchi pattern noti, il resto lo
+     * lascia invariato.
+     */
+    public function correggiPrezzi(): void
+    {
+        Auth::requireAdmin();
+        Csrf::verifyOrFail();
+        $modificati = $this->prezzoRepairService->correggiTutti();
+        flash('ok', $modificati > 0
+            ? $modificati . ' prezzi corretti al formato "numero€".'
+            : 'Nessun prezzo da correggere: erano già tutti nel formato giusto.');
         redirect('/impostazioni');
     }
 }

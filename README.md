@@ -199,9 +199,10 @@ di usarlo per la prima volta:
 1. In InDesign, crea gli stili di paragrafo `Portata`, `NomePiatto`, `Prezzo` (o i nomi che
    preferisci, basta che corrispondano a quelli in **Impostazioni**) con la formattazione attuale
    di ciascun elemento. Non serve uno stile per la descrizione: eredita quello del nome piatto.
-2. Crea uno stile di carattere `IconeAllergeni` (il font/stile locale viene comunque applicato
-   automaticamente dall'export anche se questo stile carattere non esiste ancora, ma è più pulito
-   averlo).
+2. Crea uno stile di carattere `IconeAllergeni` e **imposta già al suo interno** il font
+   Famiglia "Allergen", Stile "Outline" (non lasciarlo vuoto): l'export invia comunque anche un
+   override locale dello stesso font, ma per sicurezza non affidarti solo a quello — impostalo
+   anche nello stile stesso.
 3. Da quel momento, `File → Importa → Tagged Text` (o trascina il .txt in una cornice) applicherà
    automaticamente questi stili al testo importato.
 
@@ -249,6 +250,9 @@ modifica mirata se in futuro preferisci restare sul layout a cornici fisse.
   riordino, upload foto validati per contenuto reale (non solo estensione) e ridimensionati lato
   server, cartella upload con esecuzione PHP disabilitata via `.htaccess`.
 - Il file CSV di esempio allegato (Autunno 2026) è stato usato per testare l'import end-to-end,
-  incluse le righe con descrizione/prezzo su più righe (es. "Battuta di cavallo... € 20 / +€ 7,5")
+  incluse le righe con descrizione/prezzo su più righe (es. "Battuta di cavallo... 20€ +7,5€")
   e le righe placeholder "(Seleziona)"/"Esempio Piatto", che vengono correttamente riconosciute e
   proposte deselezionate.
+- Formato prezzi: numero seguito da € senza spazio (es. `17€`, supplementi `20€ +7,5€`), verificato
+  sull'IDML reale. In **Impostazioni** c'è un'azione per correggere in un click i piatti importati
+  prima che questa correzione fosse disponibile.

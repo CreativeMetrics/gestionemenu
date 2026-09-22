@@ -84,6 +84,7 @@ $router->get('/menu/{id}/stampa', fn ($p) => (new ExportController())->stampa($p
 $router->get('/impostazioni', fn () => (new SettingsController())->index());
 $router->post('/impostazioni/stili', fn () => (new SettingsController())->salvaStili());
 $router->post('/impostazioni/glifi', fn () => (new SettingsController())->salvaGlifi());
+$router->post('/impostazioni/correggi-prezzi', fn () => (new SettingsController())->correggiPrezzi());
 $router->get('/impostazioni/utenti', fn () => (new UserController())->index());
 $router->post('/impostazioni/utenti', fn () => (new UserController())->crea());
 $router->post('/impostazioni/utenti/{id}/attiva-disattiva', fn ($p) => (new UserController())->attivaDisattiva($p));

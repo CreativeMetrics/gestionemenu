@@ -6,6 +6,18 @@ use App\Db;
 
 class PiattoRepository
 {
+    /** @return array<int, array<string, mixed>> tutti i piatti, di ogni menu */
+    public function tutti(): array
+    {
+        return Db::conn()->query('SELECT id, prezzo_testo FROM piatti')->fetchAll();
+    }
+
+    public function aggiornaPrezzoTesto(int $id, string $prezzoTesto): void
+    {
+        $stmt = Db::conn()->prepare('UPDATE piatti SET prezzo_testo = ? WHERE id = ?');
+        $stmt->execute([$prezzoTesto, $id]);
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function forPortata(int $portataId): array
     {

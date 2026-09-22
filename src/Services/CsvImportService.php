@@ -129,7 +129,12 @@ class CsvImportService
         return [$nome, $descrizione !== '' ? $descrizione : null];
     }
 
-    /** @return array{0:string,1:?float} [prezzo_testo, prezzo_numero] */
+    /**
+     * Converte il prezzo grezzo del CSV (es. "€17.00" o due righe "€ 20" / "+€ 7,5") nel formato
+     * usato davvero nell'impaginato InDesign: numero seguito da €, senza spazio prima (es. "17€",
+     * per i supplementi "20€ +7,5€"). Verificato sull'IDML reale, non sugli esempi del CSV.
+     * @return array{0:string,1:?float} [prezzo_testo, prezzo_numero]
+     */
     private function normalizzaPrezzo(string $grezzo): array
     {
         $righe = array_values(array_filter(
@@ -137,25 +142,26 @@ class CsvImportService
             fn ($r) => $r !== ''
         ));
 
-        if (count($righe) === 0) {
+        if ($righe === []) {
             return ['', null];
         }
 
+        $parti = [];
         $primoNumero = null;
-        if (preg_match('/([\d]+(?:[.,]\d+)?)/', $righe[0], $m)) {
-            $primoNumero = (float) str_replace(',', '.', $m[1]);
-        }
-
-        if (count($righe) === 1) {
-            // Prezzo semplice: rimuove il simbolo € e formatta all'italiana (17.00 -> 17, 12.50 -> 12,5).
-            if ($primoNumero !== null) {
-                return [$this->formattaNumeroItaliano($primoNumero), $primoNumero];
+        foreach ($righe as $i => $riga) {
+            if (!preg_match('/^([+-]?)\s*€?\s*(\d+(?:[.,]\d+)?)/', $riga, $m)) {
+                $parti[] = $riga;
+                continue;
             }
-            return [$righe[0], null];
+            $segno = $m[1];
+            $numero = (float) str_replace(',', '.', $m[2]);
+            if ($i === 0) {
+                $primoNumero = $numero;
+            }
+            $parti[] = $segno . $this->formattaNumeroItaliano($numero) . '€';
         }
 
-        // Prezzo con supplemento su più righe: mantiene il testo originale unendo con " / ".
-        return [implode(' / ', $righe), $primoNumero];
+        return [implode(' ', $parti), $primoNumero];
     }
 
     private function formattaNumeroItaliano(float $numero): string
