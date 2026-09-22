@@ -1,0 +1,7 @@
+/config/config.local.php
+/public/uploads/piatti/*
+!/public/uploads/piatti/.gitkeep
+/storage/backup/*
+!/storage/backup/.gitkeep
+*.log
+.DS_Store

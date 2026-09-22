@@ -1,0 +1,5 @@
+# Le foto caricate non devono mai essere eseguite come script.
+<FilesMatch "\.(php|php\d|phtml|pl|py|cgi|sh)$">
+    Require all denied
+</FilesMatch>
+php_flag engine off
