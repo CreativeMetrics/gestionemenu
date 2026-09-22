@@ -20,7 +20,9 @@ use App\Repositories\PortataRepository;
  * comprometteva l'intero import.
  *
  * Il nome della portata viene sempre esportato tutto minuscolo (es. "antipasti"), a prescindere da
- * come è scritto nell'app: è la convenzione del documento reale.
+ * come è scritto nell'app: è la convenzione del documento reale. Ogni portata può avere anche un
+ * "suffisso export" (portate.suffisso_export) aggiunto subito dopo, solo in questo export — es.
+ * "antipasti**" per un rimando a nota, "secondi e contorni".
  *
  * Nota sul font "Allergen Outline": non usa codepoint Unicode dedicati, ogni icona corrisponde a
  * una normale lettera maiuscola digitata con quel font (vedi allergeni.glifo_unicode).
@@ -64,7 +66,8 @@ class IndesignExportService
                 continue;
             }
 
-            $righe[] = "<ParaStyle:{$stilePortata}>" . $this->escape(mb_strtolower($portata['nome'], 'UTF-8'));
+            $nomePortata = mb_strtolower($portata['nome'], 'UTF-8') . ($portata['suffisso_export'] ?? '');
+            $righe[] = "<ParaStyle:{$stilePortata}>" . $this->escape($nomePortata);
 
             foreach ($piatti as $piatto) {
                 $linea = "<ParaStyle:{$stilePiatto}>" . $this->escape($piatto['nome'])

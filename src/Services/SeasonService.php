@@ -71,7 +71,8 @@ class SeasonService
                     $nuovoMenuId,
                     $portata['nome'],
                     (int) $portata['ordine'],
-                    $portata['gruppo_impaginato']
+                    $portata['gruppo_impaginato'],
+                    $portata['suffisso_export']
                 );
 
                 foreach ($this->piattoRepo->forPortata((int) $portata['id']) as $piatto) {

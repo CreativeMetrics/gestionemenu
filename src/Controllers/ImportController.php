@@ -123,8 +123,10 @@ class ImportController
             $portateEsistenti[mb_strtolower($p['nome'])] = (int) $p['id'];
         }
         $gruppoDiDefault = [];
+        $suffissoDiDefault = [];
         foreach (PortataRepository::elencoDiDefault() as $d) {
             $gruppoDiDefault[mb_strtolower($d['nome'])] = $d['gruppo'];
+            $suffissoDiDefault[mb_strtolower($d['nome'])] = $d['suffisso'];
         }
 
         $importati = 0;
@@ -137,8 +139,9 @@ class ImportController
             $chiaveCategoria = mb_strtolower($riga['categoria']);
             if (!isset($portateEsistenti[$chiaveCategoria])) {
                 $gruppo = $gruppoDiDefault[$chiaveCategoria] ?? 'principale';
+                $suffisso = $suffissoDiDefault[$chiaveCategoria] ?? null;
                 $ordine = $this->portataRepo->prossimoOrdine($menuId);
-                $portateEsistenti[$chiaveCategoria] = $this->portataRepo->create($menuId, $riga['categoria'], $ordine, $gruppo);
+                $portateEsistenti[$chiaveCategoria] = $this->portataRepo->create($menuId, $riga['categoria'], $ordine, $gruppo, $suffisso);
             }
             $portataId = $portateEsistenti[$chiaveCategoria];
 

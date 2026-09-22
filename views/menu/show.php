@@ -50,8 +50,15 @@ $titolo = stagione_label($menu['stagione']) . ' ' . $menu['anno'];
                             <option value="dolci_drink" <?= $portata['gruppo_impaginato'] === 'dolci_drink' ? 'selected' : '' ?>>Dolci &amp; drink</option>
                         </select>
                     </div>
+                    <div>
+                        <input type="text" name="suffisso_export" value="<?= e($portata['suffisso_export'] ?? '') ?>" placeholder="suffisso export, es. **" style="width:9rem;">
+                    </div>
                     <button type="submit" class="btn-small">Salva</button>
                 </form>
+                <div class="help-text" style="margin-top:0.2rem;">
+                    Il suffisso si aggiunge solo nell'export InDesign dopo il nome della portata
+                    (es. "antipasti**"), non nell'app.
+                </div>
                 <form method="post" action="/portate/<?= (int) $portata['id'] ?>/elimina" onsubmit="return confirm('Eliminare la portata e tutti i suoi piatti?');" style="margin-top:0.4rem;">
                     <?= Csrf::field() ?>
                     <button type="submit" class="btn-small btn-pericolo">Elimina portata</button>
@@ -121,6 +128,10 @@ $titolo = stagione_label($menu['stagione']) . ' ' . $menu['anno'];
                 <option value="principale">Menu principale</option>
                 <option value="dolci_drink">Dolci &amp; drink</option>
             </select>
+        </div>
+        <div>
+            <label for="suffisso-portata">Suffisso export</label>
+            <input type="text" id="suffisso-portata" name="suffisso_export" placeholder="es. **">
         </div>
         <div style="align-self:flex-end;"><button type="submit" class="btn-secondario">Aggiungi portata</button></div>
     </form>

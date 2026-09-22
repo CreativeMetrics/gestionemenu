@@ -144,7 +144,10 @@ semplice UTF-8): è il formato che Tagged Text richiede per accenti ed € corre
 opzionale.
 
 Ogni portata viene esportata sempre tutta minuscola (es. "antipasti"), qualunque maiuscola/minuscola
-usi nell'app. Ogni piatto viene esportato come:
+usi nell'app. Ogni portata ha anche un campo facoltativo **"suffisso export"** (nella modifica
+portata, dentro il menu): testo aggiunto solo qui dopo il nome, senza toccare come si chiama nell'app
+— usato ad es. per "antipasti**"/"primi**" (rimando alla nota "piatti senza glutine +2€") e
+"secondi e contorni". Ogni piatto viene esportato come:
 
 ```
 <ParaStyle:Portata>nome portata

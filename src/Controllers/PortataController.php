@@ -25,6 +25,7 @@ class PortataController
         $menuId = (int) ($_POST['menu_id'] ?? 0);
         $nome = trim((string) ($_POST['nome'] ?? ''));
         $gruppo = ($_POST['gruppo_impaginato'] ?? 'principale') === 'dolci_drink' ? 'dolci_drink' : 'principale';
+        $suffisso = trim((string) ($_POST['suffisso_export'] ?? ''));
 
         if ($menuId <= 0 || $nome === '') {
             flash('errore', 'Nome portata obbligatorio.');
@@ -32,7 +33,7 @@ class PortataController
             return;
         }
         $ordine = $this->portataRepo->prossimoOrdine($menuId);
-        $this->portataRepo->create($menuId, $nome, $ordine, $gruppo);
+        $this->portataRepo->create($menuId, $nome, $ordine, $gruppo, $suffisso);
         flash('ok', 'Portata "' . $nome . '" aggiunta.');
         redirect('/menu/' . $menuId);
     }
@@ -49,12 +50,13 @@ class PortataController
         }
         $nome = trim((string) ($_POST['nome'] ?? ''));
         $gruppo = ($_POST['gruppo_impaginato'] ?? 'principale') === 'dolci_drink' ? 'dolci_drink' : 'principale';
+        $suffisso = trim((string) ($_POST['suffisso_export'] ?? ''));
         if ($nome === '') {
             flash('errore', 'Nome portata obbligatorio.');
             redirect('/menu/' . $portata['menu_id']);
             return;
         }
-        $this->portataRepo->update($id, $nome, $gruppo);
+        $this->portataRepo->update($id, $nome, $gruppo, $suffisso);
         flash('ok', 'Portata aggiornata.');
         redirect('/menu/' . $portata['menu_id']);
     }

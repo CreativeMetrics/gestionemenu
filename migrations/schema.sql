@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS portate (
     nome VARCHAR(100) NOT NULL,
     ordine INT NOT NULL DEFAULT 0,
     gruppo_impaginato ENUM('principale', 'dolci_drink') NOT NULL DEFAULT 'principale',
+    -- Testo aggiunto SOLO nell'export InDesign dopo il nome (es. "**" per un rimando a nota,
+    -- " e contorni"): non tocca il nome mostrato nell'app, comoda per non confondere chi gestisce i piatti.
+    suffisso_export VARCHAR(30) NULL,
     CONSTRAINT fk_portata_menu FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE,
     INDEX idx_portate_menu (menu_id, ordine)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

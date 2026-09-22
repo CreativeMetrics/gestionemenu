@@ -97,7 +97,7 @@ class MenuController
         }
         $menuId = $this->menuRepo->create($stagione, $anno, 'bozza');
         foreach (PortataRepository::elencoDiDefault() as $i => $p) {
-            $this->portataRepo->create($menuId, $p['nome'], $i + 1, $p['gruppo']);
+            $this->portataRepo->create($menuId, $p['nome'], $i + 1, $p['gruppo'], $p['suffisso']);
         }
         flash('ok', 'Nuovo menu creato con le portate di base.');
         redirect('/menu/' . $menuId);

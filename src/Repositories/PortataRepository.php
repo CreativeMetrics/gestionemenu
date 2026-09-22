@@ -9,19 +9,21 @@ class PortataRepository
     /**
      * Portate di default per un menu creato da zero (non duplicato). Basato sulla struttura
      * osservata nell'IDML "Menu A4 - autunno 2026": Dolci non compare nel documento principale,
-     * quindi va di default nel menu dolci&drink.
-     * @return array<int, array{nome:string, gruppo:string}>
+     * quindi va di default nel menu dolci&drink. "suffisso" è testo aggiunto solo nell'export
+     * InDesign dopo il nome (qui: "**" per il rimando alla nota piatti senza glutine, "e contorni"
+     * dopo Secondi), preso anch'esso dallo stesso documento.
+     * @return array<int, array{nome:string, gruppo:string, suffisso:?string}>
      */
     public static function elencoDiDefault(): array
     {
         return [
-            ['nome' => 'Antipasti', 'gruppo' => 'principale'],
-            ['nome' => 'Primi', 'gruppo' => 'principale'],
-            ['nome' => 'Secondi', 'gruppo' => 'principale'],
-            ['nome' => 'Per i più piccoli', 'gruppo' => 'principale'],
-            ['nome' => 'Drink & Gin', 'gruppo' => 'principale'],
-            ['nome' => 'Il Caffè', 'gruppo' => 'principale'],
-            ['nome' => 'Dolci', 'gruppo' => 'dolci_drink'],
+            ['nome' => 'Antipasti', 'gruppo' => 'principale', 'suffisso' => '**'],
+            ['nome' => 'Primi', 'gruppo' => 'principale', 'suffisso' => '**'],
+            ['nome' => 'Secondi', 'gruppo' => 'principale', 'suffisso' => ' e contorni'],
+            ['nome' => 'Per i più piccoli', 'gruppo' => 'principale', 'suffisso' => null],
+            ['nome' => 'Drink & Gin', 'gruppo' => 'principale', 'suffisso' => null],
+            ['nome' => 'Il Caffè', 'gruppo' => 'principale', 'suffisso' => null],
+            ['nome' => 'Dolci', 'gruppo' => 'dolci_drink', 'suffisso' => null],
         ];
     }
 
@@ -40,19 +42,19 @@ class PortataRepository
         return $stmt->fetch() ?: null;
     }
 
-    public function create(int $menuId, string $nome, int $ordine, string $gruppo = 'principale'): int
+    public function create(int $menuId, string $nome, int $ordine, string $gruppo = 'principale', ?string $suffisso = null): int
     {
         $stmt = Db::conn()->prepare(
-            'INSERT INTO portate (menu_id, nome, ordine, gruppo_impaginato) VALUES (?, ?, ?, ?)'
+            'INSERT INTO portate (menu_id, nome, ordine, gruppo_impaginato, suffisso_export) VALUES (?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$menuId, $nome, $ordine, $gruppo]);
+        $stmt->execute([$menuId, $nome, $ordine, $gruppo, $suffisso !== '' ? $suffisso : null]);
         return (int) Db::conn()->lastInsertId();
     }
 
-    public function update(int $id, string $nome, string $gruppo): void
+    public function update(int $id, string $nome, string $gruppo, ?string $suffisso = null): void
     {
-        $stmt = Db::conn()->prepare('UPDATE portate SET nome = ?, gruppo_impaginato = ? WHERE id = ?');
-        $stmt->execute([$nome, $gruppo, $id]);
+        $stmt = Db::conn()->prepare('UPDATE portate SET nome = ?, gruppo_impaginato = ?, suffisso_export = ? WHERE id = ?');
+        $stmt->execute([$nome, $gruppo, $suffisso !== '' ? $suffisso : null, $id]);
     }
 
     public function updateOrdine(int $id, int $ordine): void
