@@ -22,6 +22,7 @@ $nomeLocale = config_get('app', [])['nome_locale'] ?? 'Gestione Menu';
     <nav class="app-nav">
         <a href="/">Menu</a>
         <a href="/foto/mancanti">Foto mancanti</a>
+        <a href="/import">Importa CSV</a>
         <?php if (Auth::isAdmin()): ?>
         <a href="/impostazioni">Impostazioni</a>
         <?php endif; ?>

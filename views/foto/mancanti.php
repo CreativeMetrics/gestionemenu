@@ -1,5 +1,10 @@
 <h1>Foto piatti mancanti</h1>
 
+<?php if (empty($menus)): ?>
+    <p>Non c'è ancora nessun menu. <a href="/">Crea il primo menu</a> oppure <a href="/import">importa un CSV</a>, poi torna qui.</p>
+    <?php return; ?>
+<?php endif; ?>
+
 <form method="get" action="/foto/mancanti" class="card form-riga">
     <div>
         <label for="menu_id">Menu</label>

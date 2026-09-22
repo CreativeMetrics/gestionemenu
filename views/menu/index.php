@@ -32,10 +32,15 @@ use App\Auth;
             </div>
         </form>
     </details>
+    <p class="help-text" style="margin-top:0.8rem;">
+        Prima volta? Se hai un export dal vecchio Google Sheet, conviene
+        <a href="/import">importare il CSV</a> invece di creare un menu vuoto: porta subito con sé
+        portate, piatti, prezzi e allergeni.
+    </p>
 </div>
 
 <?php if (empty($menus)): ?>
-    <p>Nessun menu ancora. Crea il primo menu oppure importa un CSV.</p>
+    <p>Nessun menu ancora. Crea il primo menu qui sopra oppure <a href="/import">importa un CSV</a>.</p>
 <?php endif; ?>
 
 <?php foreach ($menus as $m): ?>
