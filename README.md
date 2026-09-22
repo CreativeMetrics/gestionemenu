@@ -143,15 +143,20 @@ in **Impostazioni** e sulla singola portata). I file sono veri file Unicode (UTF
 semplice UTF-8): è il formato che Tagged Text richiede per accenti ed € corretti, non un dettaglio
 opzionale.
 
-Ogni piatto viene esportato come:
+Ogni portata viene esportata sempre tutta minuscola (es. "antipasti"), qualunque maiuscola/minuscola
+usi nell'app. Ogni piatto viene esportato come:
 
 ```
-<ParaStyle:Portata>Nome portata
-<ParaStyle:NomePiatto>Nome piatto
+<ParaStyle:Portata>nome portata
+<ParaStyle:NomePiatto>Nome piatto<TAB><CharStyle:Prezzo>Prezzo<CharStyle:>  <CharStyle:IconeAllergeni><cFont:Allergen><cTypeface:Outline>LETTERE<CharStyle:>
 Descrizione (se presente, su un paragrafo a parte ma SENZA un nuovo tag ParaStyle: eredita lo
 stesso stile del nome piatto — il documento reale non ha mai avuto uno stile "Descrizione" a sé)
-<ParaStyle:Prezzo>Prezzo  <CharStyle:IconeAllergeni><cFont:Allergen><cTypeface:Outline>LETTERE<CharStyle:>
 ```
+
+Nome e prezzo stanno sempre sulla **stessa riga**, separati da una tabulazione (`<TAB>` nello
+schema sopra è un vero carattere di tabulazione, non un tag): per questo `Prezzo` è uno stile di
+**carattere**, non di paragrafo. Se vuoi il prezzo allineato a destra, imposta un tab-stop nello
+stile di paragrafo del nome piatto in InDesign.
 
 I nomi degli stili (`Portata`, `NomePiatto`, `Prezzo`, `IconeAllergeni`) sono **configurabili** in
 **Impostazioni → Export InDesign** e devono corrispondere esattamente ai nomi degli stili di
@@ -196,14 +201,18 @@ nome piatto, descrizione, prezzo o icone allergeni: il testo è formattato solo 
 l'import di Tagged Text funzioni bene (assegnando automaticamente la formattazione giusta), prima
 di usarlo per la prima volta:
 
-1. In InDesign, crea gli stili di paragrafo `Portata`, `NomePiatto`, `Prezzo` (o i nomi che
-   preferisci, basta che corrispondano a quelli in **Impostazioni**) con la formattazione attuale
-   di ciascun elemento. Non serve uno stile per la descrizione: eredita quello del nome piatto.
-2. Crea uno stile di carattere `IconeAllergeni` e **imposta già al suo interno** il font
+1. In InDesign, crea gli stili di paragrafo `Portata` e `NomePiatto` (o i nomi che preferisci,
+   basta che corrispondano a quelli in **Impostazioni**) con la formattazione attuale di ciascun
+   elemento. Non serve uno stile per la descrizione: eredita quello del nome piatto. Se vuoi il
+   prezzo allineato a destra sulla stessa riga del nome, aggiungi un tab-stop a destra nello
+   stile `NomePiatto`.
+2. Crea uno stile di **carattere** (non di paragrafo) `Prezzo`, con la formattazione che vuoi per
+   il prezzo — verrà applicato solo al testo del prezzo, che condivide la riga col nome piatto.
+3. Crea uno stile di carattere `IconeAllergeni` e **imposta già al suo interno** il font
    Famiglia "Allergen", Stile "Outline" (non lasciarlo vuoto): l'export invia comunque anche un
    override locale dello stesso font, ma per sicurezza non affidarti solo a quello — impostalo
    anche nello stile stesso.
-3. Da quel momento, `File → Importa → Tagged Text` (o trascina il .txt in una cornice) applicherà
+4. Da quel momento, `File → Importa → Tagged Text` (o trascina il .txt in una cornice) applicherà
    automaticamente questi stili al testo importato.
 
 **Nota sulla struttura del layout attuale**: nel documento analizzato, nome piatto/descrizione,

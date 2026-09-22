@@ -7,16 +7,20 @@ use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
 
 /**
- * Genera un file InDesign Tagged Text (.txt) per un menu, con stili di paragrafo per
- * portata/nome piatto/prezzo e stile carattere + font locale per le icone allergeni.
+ * Genera un file InDesign Tagged Text (.txt) per un menu.
  *
- * Nome piatto e descrizione condividono lo stesso stile: nel documento reale non esiste uno stile
- * "Descrizione" distinto, il piatto è un blocco unico basato sullo stile del nome. La descrizione
- * viene scritta come paragrafo (o più paragrafi, se su più righe) SENZA un nuovo tag <ParaStyle:>:
+ * Ogni piatto è UNA riga (paragrafo) "nome piatto <TAB> prezzo  icone allergeni", con lo stile di
+ * paragrafo del nome piatto e uno stile di CARATTERE per il prezzo (non di paragrafo: deve stare
+ * sulla stessa riga del nome, non andare a capo — la tabulazione tra i due va allineata con un
+ * tab-stop nello stile di paragrafo "NomePiatto" in InDesign se si vuole il prezzo allineato a
+ * destra). La descrizione (se c'è) va su un paragrafo a parte SENZA un nuovo tag <ParaStyle:>:
  * in Tagged Text lo stile dichiarato per un paragrafo resta valido per quelli successivi finché
  * non ne arriva uno nuovo, quindi eredita lo stile del nome piatto. Evita deliberatamente il tag
  * "forced line break" <0x2028>: risulta non riconosciuto da InDesign (vedi log errori) e ne
  * comprometteva l'intero import.
+ *
+ * Il nome della portata viene sempre esportato tutto minuscolo (es. "antipasti"), a prescindere da
+ * come è scritto nell'app: è la convenzione del documento reale.
  *
  * Nota sul font "Allergen Outline": non usa codepoint Unicode dedicati, ogni icona corrisponde a
  * una normale lettera maiuscola digitata con quel font (vedi allergeni.glifo_unicode).
@@ -60,18 +64,11 @@ class IndesignExportService
                 continue;
             }
 
-            $righe[] = "<ParaStyle:{$stilePortata}>" . $this->escape($portata['nome']);
+            $righe[] = "<ParaStyle:{$stilePortata}>" . $this->escape(mb_strtolower($portata['nome'], 'UTF-8'));
 
             foreach ($piatti as $piatto) {
-                $righe[] = "<ParaStyle:{$stilePiatto}>" . $this->escape($piatto['nome']);
-                if (!empty($piatto['descrizione'])) {
-                    foreach ($this->righe($piatto['descrizione']) as $rigaDescrizione) {
-                        // Nessun <ParaStyle:> qui: eredita deliberatamente lo stile del nome piatto.
-                        $righe[] = $this->escape($rigaDescrizione);
-                    }
-                }
-
-                $lineaPrezzo = "<ParaStyle:{$stilePrezzo}>" . $this->escape($piatto['prezzo_testo']);
+                $linea = "<ParaStyle:{$stilePiatto}>" . $this->escape($piatto['nome'])
+                    . "\t<CharStyle:{$stilePrezzo}>" . $this->escape($piatto['prezzo_testo']) . '<CharStyle:>';
 
                 $lettere = '';
                 foreach ($this->piattoRepo->allergeniPerPiatto((int) $piatto['id']) as $a) {
@@ -80,12 +77,19 @@ class IndesignExportService
                     }
                 }
                 if ($lettere !== '') {
-                    $lineaPrezzo .= '  '
+                    $linea .= '  '
                         . "<CharStyle:{$stileCarattereAllergeni}><cFont:{$fontAllergeni}><cTypeface:{$fontStyleAllergeni}>"
                         . $this->escape($lettere)
                         . '<CharStyle:>';
                 }
-                $righe[] = $lineaPrezzo;
+                $righe[] = $linea;
+
+                if (!empty($piatto['descrizione'])) {
+                    foreach ($this->righe($piatto['descrizione']) as $rigaDescrizione) {
+                        // Nessun <ParaStyle:> qui: eredita deliberatamente lo stile del nome piatto.
+                        $righe[] = $this->escape($rigaDescrizione);
+                    }
+                }
             }
         }
 

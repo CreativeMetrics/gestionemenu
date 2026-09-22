@@ -24,17 +24,23 @@
                 <input type="text" name="indesign_stile_piatto" id="indesign_stile_piatto" value="<?= e($impostazioni['indesign_stile_piatto']) ?>">
             </div>
         </div>
-        <div class="form-riga">
-            <div>
-                <label for="indesign_stile_prezzo">Stile paragrafo — Prezzo</label>
-                <input type="text" name="indesign_stile_prezzo" id="indesign_stile_prezzo" value="<?= e($impostazioni['indesign_stile_prezzo']) ?>">
-            </div>
-        </div>
         <p class="help-text">
             La descrizione del piatto (quando c'è) condivide lo stesso stile del nome, su una riga
-            a parte all'interno dello stesso paragrafo — non serve uno stile a parte.
+            a parte all'interno dello stesso paragrafo — non serve uno stile a parte. Anche il
+            nome della portata (es. "Antipasti") viene sempre esportato tutto minuscolo, qualunque
+            maiuscola/minuscola usi qui nell'app.
         </p>
         <div class="form-riga">
+            <div>
+                <label for="indesign_stile_prezzo">Stile carattere — Prezzo</label>
+                <input type="text" name="indesign_stile_prezzo" id="indesign_stile_prezzo" value="<?= e($impostazioni['indesign_stile_prezzo']) ?>">
+                <div class="help-text">
+                    Nome e prezzo stanno sulla stessa riga (separati da una tabulazione): questo
+                    <strong>non</strong> è uno stile di paragrafo, ma uno stile di carattere da
+                    creare in InDesign, applicato solo al prezzo. Se vuoi il prezzo allineato a
+                    destra, imposta un tab-stop nello stile di paragrafo "Nome piatto".
+                </div>
+            </div>
             <div>
                 <label for="indesign_stile_carattere_allergeni">Stile carattere — icone allergeni</label>
                 <input type="text" name="indesign_stile_carattere_allergeni" id="indesign_stile_carattere_allergeni" value="<?= e($impostazioni['indesign_stile_carattere_allergeni']) ?>">
