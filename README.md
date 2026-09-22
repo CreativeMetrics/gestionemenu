@@ -148,13 +148,14 @@ Ogni piatto viene esportato come:
 ```
 <ParaStyle:Portata>Nome portata
 <ParaStyle:NomePiatto>Nome piatto
-<ParaStyle:Descrizione>Descrizione (righe multiple unite con interruzione di riga forzata)
-<ParaStyle:Prezzo>Prezzo  <CharStyle:IconeAllergeni><cFont:Allergen><cFontStyle:Outline>LETTERE<CharStyle:>
+Descrizione (se presente, su un paragrafo a parte ma SENZA un nuovo tag ParaStyle: eredita lo
+stesso stile del nome piatto — il documento reale non ha mai avuto uno stile "Descrizione" a sé)
+<ParaStyle:Prezzo>Prezzo  <CharStyle:IconeAllergeni><cFont:Allergen><cTypeface:Outline>LETTERE<CharStyle:>
 ```
 
-I nomi degli stili (`Portata`, `NomePiatto`, `Descrizione`, `Prezzo`, `IconeAllergeni`) sono
-**configurabili** in **Impostazioni → Export InDesign** e devono corrispondere esattamente ai nomi
-degli stili di paragrafo/carattere che hai (o creerai) nel documento InDesign.
+I nomi degli stili (`Portata`, `NomePiatto`, `Prezzo`, `IconeAllergeni`) sono **configurabili** in
+**Impostazioni → Export InDesign** e devono corrispondere esattamente ai nomi degli stili di
+paragrafo/carattere che hai (o creerai) nel documento InDesign.
 
 ### 3.2 Una cosa importante sul font "Allergen Outline"
 
@@ -195,9 +196,9 @@ nome piatto, descrizione, prezzo o icone allergeni: il testo è formattato solo 
 l'import di Tagged Text funzioni bene (assegnando automaticamente la formattazione giusta), prima
 di usarlo per la prima volta:
 
-1. In InDesign, crea gli stili di paragrafo `Portata`, `NomePiatto`, `Descrizione`, `Prezzo` (o i
-   nomi che preferisci, basta che corrispondano a quelli in **Impostazioni**) con la formattazione
-   attuale di ciascun elemento.
+1. In InDesign, crea gli stili di paragrafo `Portata`, `NomePiatto`, `Prezzo` (o i nomi che
+   preferisci, basta che corrispondano a quelli in **Impostazioni**) con la formattazione attuale
+   di ciascun elemento. Non serve uno stile per la descrizione: eredita quello del nome piatto.
 2. Crea uno stile di carattere `IconeAllergeni` (il font/stile locale viene comunque applicato
    automaticamente dall'export anche se questo stile carattere non esiste ancora, ma è più pulito
    averlo).

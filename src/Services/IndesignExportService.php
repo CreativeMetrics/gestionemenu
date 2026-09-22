@@ -10,9 +10,13 @@ use App\Repositories\PortataRepository;
  * Genera un file InDesign Tagged Text (.txt) per un menu, con stili di paragrafo per
  * portata/nome piatto/prezzo e stile carattere + font locale per le icone allergeni.
  *
- * Nome piatto e descrizione condividono lo stesso paragrafo/stile (separati da un a-capo forzato):
- * nel documento reale non esiste uno stile "Descrizione" distinto, il piatto è un blocco unico
- * basato sullo stile del nome.
+ * Nome piatto e descrizione condividono lo stesso stile: nel documento reale non esiste uno stile
+ * "Descrizione" distinto, il piatto è un blocco unico basato sullo stile del nome. La descrizione
+ * viene scritta come paragrafo (o più paragrafi, se su più righe) SENZA un nuovo tag <ParaStyle:>:
+ * in Tagged Text lo stile dichiarato per un paragrafo resta valido per quelli successivi finché
+ * non ne arriva uno nuovo, quindi eredita lo stile del nome piatto. Evita deliberatamente il tag
+ * "forced line break" <0x2028>: risulta non riconosciuto da InDesign (vedi log errori) e ne
+ * comprometteva l'intero import.
  *
  * Nota sul font "Allergen Outline": non usa codepoint Unicode dedicati, ogni icona corrisponde a
  * una normale lettera maiuscola digitata con quel font (vedi allergeni.glifo_unicode).
@@ -59,11 +63,13 @@ class IndesignExportService
             $righe[] = "<ParaStyle:{$stilePortata}>" . $this->escape($portata['nome']);
 
             foreach ($piatti as $piatto) {
-                $nomeEDescrizione = $this->escape($piatto['nome']);
+                $righe[] = "<ParaStyle:{$stilePiatto}>" . $this->escape($piatto['nome']);
                 if (!empty($piatto['descrizione'])) {
-                    $nomeEDescrizione .= '<0x2028>' . $this->escapeMultilinea($piatto['descrizione']);
+                    foreach ($this->righe($piatto['descrizione']) as $rigaDescrizione) {
+                        // Nessun <ParaStyle:> qui: eredita deliberatamente lo stile del nome piatto.
+                        $righe[] = $this->escape($rigaDescrizione);
+                    }
                 }
-                $righe[] = "<ParaStyle:{$stilePiatto}>" . $nomeEDescrizione;
 
                 $lineaPrezzo = "<ParaStyle:{$stilePrezzo}>" . $this->escape($piatto['prezzo_testo']);
 
@@ -96,9 +102,9 @@ class IndesignExportService
         return str_replace('<', '\\<', $testo);
     }
 
-    private function escapeMultilinea(string $testo): string
+    /** Spezza un testo eventualmente su più righe in un array di righe (senza escaping). */
+    private function righe(string $testo): array
     {
-        $testo = $this->escape($testo);
-        return str_replace(["\r\n", "\r", "\n"], '<0x2028>', $testo);
+        return preg_split('/\r\n|\r|\n/', $testo) ?: [$testo];
     }
 }
