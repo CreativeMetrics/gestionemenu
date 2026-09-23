@@ -136,6 +136,42 @@ class PiattoController
         redirect('/menu/' . $piattoAttuale['menu_id']);
     }
 
+    /**
+     * Crea una copia del piatto nella stessa portata (nome, prezzo, allergeni), utile per varianti
+     * simili (es. "senza glutine"). La foto non viene copiata: entrambi i piatti punterebbero allo
+     * stesso file ed eliminarne uno cancellerebbe la foto anche dell'altro.
+     */
+    public function duplica(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyOrFail();
+        $utente = Auth::user();
+        $id = (int) $params['id'];
+        $originale = $this->piattoRepo->findConMenu($id);
+        if (!$originale) {
+            http_response_code(404);
+            die('Piatto non trovato.');
+        }
+
+        $nomeCopia = $originale['nome'] . ' (copia)';
+        $nuovoId = $this->piattoRepo->create([
+            'portata_id' => $originale['portata_id'],
+            'nome' => $nomeCopia,
+            'descrizione' => $originale['descrizione'],
+            'prezzo_testo' => $originale['prezzo_testo'],
+            'prezzo_numero' => $originale['prezzo_numero'],
+            'tracce_di' => $originale['tracce_di'],
+            'note_interne' => $originale['note_interne'],
+            'ordine' => $this->piattoRepo->prossimoOrdine((int) $originale['portata_id']),
+            'user_id' => $utente['id'],
+        ]);
+        $this->piattoRepo->setAllergeni($nuovoId, $this->piattoRepo->allergeniIds($id));
+        $this->storicoRepo->log($nuovoId, $nomeCopia, $utente['id'], 'creazione', null, 'Duplicato da "' . $originale['nome'] . '"');
+
+        flash('ok', 'Piatto duplicato (foto non copiata: caricane una nuova se serve).');
+        redirect('/menu/' . $originale['menu_id']);
+    }
+
     public function elimina(array $params): void
     {
         Auth::requireLogin();
