@@ -5,6 +5,7 @@
     <p>Nessuna modifica registrata.</p>
 <?php endif; ?>
 
+<div class="tabella-scroll">
 <table class="tabella-semplice">
     <thead><tr><th>Quando</th><th>Chi</th><th>Campo</th><th>Prima</th><th>Dopo</th></tr></thead>
     <tbody>
@@ -19,5 +20,6 @@
     <?php endforeach; ?>
     </tbody>
 </table>
+</div>
 
 <p><a href="/menu/<?= (int) $piatto['menu_id'] ?>">← Torna al menu</a></p>

@@ -88,6 +88,7 @@
     </p>
     <form method="post" action="/impostazioni/glifi">
         <?= Csrf::field() ?>
+        <div class="tabella-scroll">
         <table class="tabella-semplice">
             <thead><tr><th>Allergene</th><th>Lettera</th></tr></thead>
             <tbody>
@@ -99,6 +100,7 @@
             <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
         <div style="margin-top:1rem;"><button type="submit">Salva mappa glifi</button></div>
     </form>
 </div>

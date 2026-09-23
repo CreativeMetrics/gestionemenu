@@ -1,6 +1,7 @@
 <?php use App\Csrf; use App\Auth; ?>
 <h1>Utenti</h1>
 
+<div class="tabella-scroll">
 <table class="tabella-semplice">
     <thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th></th></tr></thead>
     <tbody>
@@ -36,6 +37,7 @@
     <?php endforeach; ?>
     </tbody>
 </table>
+</div>
 
 <div class="card">
     <h2 style="margin-top:0; font-size:1.05rem;">Nuovo utente</h2>

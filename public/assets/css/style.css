@@ -206,6 +206,15 @@ button:hover, .btn:hover { background: var(--colore-primario-scuro); }
 table.tabella-semplice { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 table.tabella-semplice th, table.tabella-semplice td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--colore-bordo); }
 
+/* Su schermi stretti le tabelle con più colonne scorrono in orizzontale solo al loro interno,
+   invece di allargare tutta la pagina e obbligare a scorrere l'intera schermata. */
+.tabella-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+.tabella-scroll table.tabella-semplice { margin-bottom: 0; }
+
 .form-riga { display: flex; gap: 0.7rem; flex-wrap: wrap; }
 .form-riga > div { flex: 1; min-width: 160px; }
 

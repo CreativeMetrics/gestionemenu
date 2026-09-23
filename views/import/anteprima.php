@@ -56,6 +56,7 @@
 
     <p class="help-text">Righe selezionate: verranno importate. Le righe placeholder ("(Seleziona)"/"Esempio Piatto") sono deselezionate di default.</p>
 
+    <div class="tabella-scroll">
     <table class="tabella-semplice">
         <thead><tr><th></th><th>Categoria</th><th>Piatto</th><th>Prezzo</th><th>Allergeni</th></tr></thead>
         <tbody>
@@ -79,6 +80,7 @@
         <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 
     <div style="margin:1rem 0;">
         <button type="submit">Conferma e importa</button>
