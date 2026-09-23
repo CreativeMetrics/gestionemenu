@@ -8,6 +8,7 @@ use App\Repositories\AllergeneRepository;
 use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
 use App\Repositories\StoricoRepository;
+use App\Services\ImageService;
 use App\Support\View;
 
 class PiattoController
@@ -16,6 +17,7 @@ class PiattoController
     private PortataRepository $portataRepo;
     private AllergeneRepository $allergeneRepo;
     private StoricoRepository $storicoRepo;
+    private ImageService $imageService;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class PiattoController
         $this->portataRepo = new PortataRepository();
         $this->allergeneRepo = new AllergeneRepository();
         $this->storicoRepo = new StoricoRepository();
+        $this->imageService = new ImageService();
     }
 
     public function nuovoForm(): void
@@ -142,6 +145,7 @@ class PiattoController
             http_response_code(404);
             die('Piatto non trovato.');
         }
+        $this->imageService->elimina($piatto['foto_path']);
         $this->piattoRepo->delete($id);
         flash('ok', 'Piatto eliminato.');
         redirect('/menu/' . $piatto['menu_id']);

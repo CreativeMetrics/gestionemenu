@@ -68,6 +68,9 @@ $router->post('/piatti/{id}/foto', fn ($p) => (new FotoController())->carica($p)
 $router->post('/piatti/{id}/foto/rimuovi', fn ($p) => (new FotoController())->rimuovi($p));
 $router->post('/piatti/{id}/foto/esterna', fn ($p) => (new FotoController())->segnaEsterna($p));
 $router->get('/foto/mancanti', fn () => (new FotoController())->mancanti());
+$router->get('/impostazioni/foto', fn () => (new FotoController())->gestione());
+$router->post('/impostazioni/foto/elimina', fn () => (new FotoController())->eliminaMultiple());
+$router->get('/impostazioni/foto/scarica/{file}', fn ($p) => (new FotoController())->scarica($p));
 
 // Import CSV
 $router->get('/import', fn () => (new ImportController())->form());

@@ -20,7 +20,7 @@ class ImageService
      * Valida e salva una foto caricata (array $_FILES['foto']) ridimensionata lato server.
      * Restituisce il nome file salvato (da mettere in piatti.foto_path) o lancia un'eccezione.
      */
-    public function salvaFotoCaricata(array $file, int $piattoId): string
+    public function salvaFotoCaricata(array $file, int $piattoId, string $nomePiatto = ''): string
     {
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             throw new \RuntimeException('Errore nel caricamento del file.');
@@ -67,13 +67,30 @@ class ImageService
         if (!is_dir($this->dir)) {
             mkdir($this->dir, 0775, true);
         }
+        // Su alcuni hosting condivisi (Plesk con PHP-FPM) i file creati da PHP hanno permessi
+        // troppo restrittivi perché il webserver possa poi leggerli e servirli come immagine:
+        // l'upload sembra riuscire ma la foto non si vede. Forza permessi leggibili da chiunque.
+        @chmod($this->dir, 0755);
 
-        $nomeFile = 'piatto_' . $piattoId . '_' . time() . '.jpg';
+        // Il timestamp evita che ricaricando una nuova foto per lo stesso piatto il nome file
+        // resti identico: il browser potrebbe altrimenti mostrare la vecchia foto dalla cache.
+        $nomeFile = self::slug($nomePiatto) . '-' . $piattoId . '-' . time() . '.jpg';
         $percorsoCompleto = $this->dir . '/' . $nomeFile;
         imagejpeg($sorgente, $percorsoCompleto, $this->qualita);
         imagedestroy($sorgente);
+        @chmod($percorsoCompleto, 0644);
 
         return $nomeFile;
+    }
+
+    /** Trasforma un testo libero in un nome file leggibile (es. "Uovo al tegamino" -> "uovo-al-tegamino"). */
+    public static function slug(string $testo): string
+    {
+        $traslitterato = function_exists('iconv') ? iconv('UTF-8', 'ASCII//TRANSLIT', $testo) : false;
+        $testo = mb_strtolower($traslitterato !== false ? $traslitterato : $testo);
+        $testo = preg_replace('/[^a-z0-9]+/', '-', $testo) ?? '';
+        $testo = trim($testo, '-');
+        return $testo !== '' ? substr($testo, 0, 60) : 'piatto';
     }
 
     public function elimina(?string $nomeFile): void
@@ -85,6 +102,32 @@ class ImageService
         if (is_file($percorso)) {
             @unlink($percorso);
         }
+    }
+
+    /** @return array<int, string> nomi dei file immagine presenti nella cartella upload */
+    public function elencoFile(): array
+    {
+        if (!is_dir($this->dir)) {
+            return [];
+        }
+        $file = [];
+        foreach (scandir($this->dir) ?: [] as $voce) {
+            if (is_file($this->dir . '/' . $voce) && !str_starts_with($voce, '.')) {
+                $file[] = $voce;
+            }
+        }
+        return $file;
+    }
+
+    public function esiste(string $nomeFile): bool
+    {
+        return is_file($this->percorsoCompleto($nomeFile));
+    }
+
+    /** Percorso assoluto sicuro per un nome file (impedisce di uscire dalla cartella upload). */
+    public function percorsoCompleto(string $nomeFile): string
+    {
+        return $this->dir . '/' . basename($nomeFile);
     }
 
     /** @return \GdImage */

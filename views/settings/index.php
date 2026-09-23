@@ -2,6 +2,7 @@
 <h1>Impostazioni</h1>
 
 <p><a href="/impostazioni/utenti">Gestione utenti →</a></p>
+<p><a href="/impostazioni/foto">Gestione foto (scarica/elimina in blocco) →</a></p>
 
 <div class="card">
     <h2 style="margin-top:0; font-size:1.05rem;">Export InDesign — nomi stili</h2>

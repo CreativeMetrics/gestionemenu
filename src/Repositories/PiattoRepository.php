@@ -106,6 +106,13 @@ class PiattoRepository
         $stmt->execute([$percorso, $id]);
     }
 
+    /** Toglie il riferimento a un nome file dai piatti (usato quando il file viene eliminato dalla gestione foto). */
+    public function azzeraFotoPerNomeFile(string $nomeFile): void
+    {
+        $stmt = Db::conn()->prepare('UPDATE piatti SET foto_path = NULL WHERE foto_path = ?');
+        $stmt->execute([$nomeFile]);
+    }
+
     /** Segna/rimuove il flag "foto già presente altrove" (esclude/include il piatto da "Foto mancanti"). */
     public function setFotoEsterna(int $id, bool $esterna): void
     {
@@ -153,6 +160,20 @@ class PiattoRepository
         $stmt = Db::conn()->prepare($sql);
         $stmt->execute([$piattoId]);
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Tutti i piatti con una foto caricata, con contesto menu/portata — usato dalla pagina di
+     * gestione foto per capire a quale piatto appartiene ogni file. @return array<int, array<string, mixed>>
+     */
+    public function conFotoCaricata(): array
+    {
+        $sql = "SELECT p.id, p.nome, p.foto_path, po.nome AS portata_nome, m.stagione, m.anno
+                FROM piatti p
+                JOIN portate po ON po.id = p.portata_id
+                JOIN menus m ON m.id = po.menu_id
+                WHERE p.foto_path IS NOT NULL AND p.foto_path != ''";
+        return Db::conn()->query($sql)->fetchAll();
     }
 
     /**

@@ -45,7 +45,7 @@ class FotoController
         }
 
         try {
-            $nomeFile = $this->imageService->salvaFotoCaricata($_FILES['foto'] ?? [], $id);
+            $nomeFile = $this->imageService->salvaFotoCaricata($_FILES['foto'] ?? [], $id, $piatto['nome']);
         } catch (\RuntimeException $e) {
             flash('errore', $e->getMessage());
             redirect('/piatti/' . $id . '/foto');
@@ -116,5 +116,90 @@ class FotoController
             'menuSelezionato' => $menu,
             'piatti' => $piatti,
         ]);
+    }
+
+    /**
+     * Pagina di gestione di tutti i file foto caricati: per liberare spazio (elimina in blocco) e
+     * per scaricarli con un nome leggibile invece del nome file interno.
+     */
+    public function gestione(): void
+    {
+        Auth::requireAdmin();
+
+        $piattiPerFile = [];
+        foreach ($this->piattoRepo->conFotoCaricata() as $p) {
+            $piattiPerFile[$p['foto_path']] = $p;
+        }
+
+        $file = [];
+        foreach ($this->imageService->elencoFile() as $nomeFile) {
+            $percorso = $this->imageService->percorsoCompleto($nomeFile);
+            $file[] = [
+                'nome' => $nomeFile,
+                'dimensione' => filesize($percorso),
+                'modificato' => filemtime($percorso),
+                'piatto' => $piattiPerFile[$nomeFile] ?? null,
+            ];
+        }
+        usort($file, fn ($a, $b) => $b['modificato'] <=> $a['modificato']);
+
+        $totaleByte = array_sum(array_column($file, 'dimensione'));
+
+        View::render('foto/gestione', [
+            'file' => $file,
+            'totaleByte' => $totaleByte,
+        ]);
+    }
+
+    public function eliminaMultiple(): void
+    {
+        Auth::requireAdmin();
+        Csrf::verifyOrFail();
+
+        $selezionati = $_POST['file'] ?? [];
+        if (!is_array($selezionati)) {
+            $selezionati = [];
+        }
+
+        $eliminati = 0;
+        foreach ($selezionati as $nomeFile) {
+            $nomeFile = basename((string) $nomeFile);
+            if ($nomeFile === '' || !$this->imageService->esiste($nomeFile)) {
+                continue;
+            }
+            $this->imageService->elimina($nomeFile);
+            $this->piattoRepo->azzeraFotoPerNomeFile($nomeFile);
+            $eliminati++;
+        }
+
+        flash('ok', $eliminati > 0 ? $eliminati . ' foto eliminate.' : 'Nessuna foto selezionata.');
+        redirect('/impostazioni/foto');
+    }
+
+    public function scarica(array $params): void
+    {
+        Auth::requireAdmin();
+
+        $nomeFile = basename((string) $params['file']);
+        if (!$this->imageService->esiste($nomeFile)) {
+            http_response_code(404);
+            die('File non trovato.');
+        }
+
+        $piatto = null;
+        foreach ($this->piattoRepo->conFotoCaricata() as $p) {
+            if ($p['foto_path'] === $nomeFile) {
+                $piatto = $p;
+                break;
+            }
+        }
+
+        $nomeScaricato = $piatto ? ImageService::slug($piatto['nome']) . '.jpg' : $nomeFile;
+        $percorso = $this->imageService->percorsoCompleto($nomeFile);
+
+        header('Content-Type: image/jpeg');
+        header('Content-Disposition: attachment; filename="' . $nomeScaricato . '"');
+        header('Content-Length: ' . filesize($percorso));
+        readfile($percorso);
     }
 }
