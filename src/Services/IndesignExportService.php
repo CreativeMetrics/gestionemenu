@@ -40,6 +40,44 @@ class IndesignExportService
     ) {
     }
 
+    /**
+     * Controlla i piatti del menu prima di generare l'export, per intercettare a schermo problemi
+     * che altrimenti si scoprirebbero solo dopo aver importato il file in InDesign: prezzo
+     * mancante, nome mancante, o un allergene assegnato senza una lettera mappata nella tabella
+     * "Mappa allergene -> glifo" di Impostazioni. Controlla tutte le portate del menu (sia "menu
+     * principale" che "dolci & drink"), non solo il file che si sta per scaricare.
+     * @return array<int, array{portata: string, piatto: string, messaggio: string}>
+     */
+    public function problemi(int $menuId): array
+    {
+        $problemi = [];
+        foreach ($this->portataRepo->forMenu($menuId) as $portata) {
+            foreach ($this->piattoRepo->forPortata((int) $portata['id']) as $piatto) {
+                if (trim((string) $piatto['nome']) === '') {
+                    $problemi[] = ['portata' => $portata['nome'], 'piatto' => '(senza nome)', 'messaggio' => 'Il piatto non ha un nome.'];
+                }
+                if (trim((string) $piatto['prezzo_testo']) === '') {
+                    $problemi[] = ['portata' => $portata['nome'], 'piatto' => $piatto['nome'], 'messaggio' => 'Prezzo mancante.'];
+                }
+
+                $senzaGlifo = [];
+                foreach ($this->piattoRepo->allergeniPerPiatto((int) $piatto['id']) as $a) {
+                    if (empty($a['glifo_unicode'])) {
+                        $senzaGlifo[] = $a['nome'];
+                    }
+                }
+                if ($senzaGlifo !== []) {
+                    $problemi[] = [
+                        'portata' => $portata['nome'],
+                        'piatto' => $piatto['nome'],
+                        'messaggio' => 'Icona non mappata in Impostazioni per: ' . implode(', ', $senzaGlifo) . '.',
+                    ];
+                }
+            }
+        }
+        return $problemi;
+    }
+
     /** Restituisce i byte pronti per il download (già codificati UTF-16 con BOM). */
     public function generaFile(int $menuId, string $gruppo): string
     {

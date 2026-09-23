@@ -51,7 +51,10 @@ class ExportController
             http_response_code(404);
             die('Menu non trovato.');
         }
-        \App\Support\View::render('export/indesign', ['menu' => $menu]);
+        \App\Support\View::render('export/indesign', [
+            'menu' => $menu,
+            'problemi' => $this->indesignService->problemi((int) $menu['id']),
+        ]);
     }
 
     public function indesignFile(array $params): void

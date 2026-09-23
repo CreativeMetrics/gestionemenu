@@ -26,6 +26,7 @@ class SeasonService
         private MenuRepository $menuRepo = new MenuRepository(),
         private PortataRepository $portataRepo = new PortataRepository(),
         private PiattoRepository $piattoRepo = new PiattoRepository(),
+        private ImageService $imageService = new ImageService(),
     ) {
     }
 
@@ -87,7 +88,10 @@ class SeasonService
                         'ordine' => $piatto['ordine'],
                     ]);
                     if (!empty($piatto['foto_path'])) {
-                        $this->piattoRepo->setFoto($nuovoPiattoId, $piatto['foto_path']);
+                        $nuovoFile = $this->imageService->duplicaFile($piatto['foto_path'], $nuovoPiattoId, $piatto['nome']);
+                        if ($nuovoFile !== null) {
+                            $this->piattoRepo->setFoto($nuovoPiattoId, $nuovoFile);
+                        }
                     } elseif (!empty($piatto['foto_esterna'])) {
                         $this->piattoRepo->setFotoEsterna($nuovoPiattoId, true);
                     }

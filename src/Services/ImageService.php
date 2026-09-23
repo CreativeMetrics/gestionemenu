@@ -110,6 +110,33 @@ class ImageService
         return $testo !== '' ? substr($testo, 0, 60) : 'piatto';
     }
 
+    /**
+     * Copia fisicamente il file di una foto già caricata assegnandole un nuovo nome, per un piatto
+     * duplicato (es. duplicando un intero menu per la stagione successiva). Senza questa copia il
+     * nuovo piatto punterebbe allo stesso file fisico dell'originale: eliminare o sostituire la
+     * foto di uno dei due cancellerebbe la foto anche dell'altro. Restituisce il nuovo nome file,
+     * o null se il file originale non esiste più (il chiamante deve lasciare il piatto senza foto).
+     */
+    public function duplicaFile(string $nomeFileOriginale, int $nuovoPiattoId, string $nomePiatto): ?string
+    {
+        $sorgente = $this->percorsoCompleto($nomeFileOriginale);
+        if (!is_file($sorgente)) {
+            return null;
+        }
+        if (!is_dir($this->dir)) {
+            mkdir($this->dir, 0775, true);
+        }
+        @chmod($this->dir, 0755);
+
+        $nuovoNome = self::slug($nomePiatto) . '-' . $nuovoPiattoId . '-' . time() . '.jpg';
+        $destinazione = $this->dir . '/' . $nuovoNome;
+        if (!@copy($sorgente, $destinazione)) {
+            return null;
+        }
+        @chmod($destinazione, 0644);
+        return $nuovoNome;
+    }
+
     public function elimina(?string $nomeFile): void
     {
         if (!$nomeFile) {
