@@ -1,8 +1,10 @@
 <?php use App\Csrf; ?>
 <h1>Impostazioni</h1>
 
-<p><a href="/impostazioni/utenti">Gestione utenti →</a></p>
-<p><a href="/impostazioni/foto">Gestione foto (scarica/elimina in blocco) →</a></p>
+<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.2rem;">
+    <a href="/impostazioni/utenti" class="btn">Gestione utenti</a>
+    <a href="/impostazioni/foto" class="btn btn-secondario">Gestione foto (scarica/elimina)</a>
+</div>
 
 <div class="card">
     <h2 style="margin-top:0; font-size:1.05rem;">Export InDesign — nomi stili</h2>

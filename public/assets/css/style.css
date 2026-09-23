@@ -71,6 +71,35 @@ nav.app-nav {
     user-select: none;
 }
 
+/* Sopra i 700px il menu non sta più stretto a destra sulla stessa riga del logo (dove finiva
+   quasi invisibile): diventa una seconda barra a tutta larghezza subito sotto, con voci più
+   larghe e cliccabili e la voce attiva evidenziata. */
+@media (min-width: 701px) {
+    header.app-header { padding: 0; }
+    .app-brand { padding: 0.9rem 1rem; }
+    nav.app-nav {
+        flex-basis: 100%;
+        gap: 0;
+        background: var(--colore-primario-scuro);
+        padding: 0 0.5rem;
+    }
+    nav.app-nav a {
+        padding: 0.7rem 1rem;
+        border-radius: 0;
+    }
+    nav.app-nav a:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+    nav.app-nav a.nav-attivo {
+        background: rgba(255, 255, 255, 0.18);
+        box-shadow: inset 0 -3px 0 #fff;
+    }
+    .app-nav-esci {
+        margin-left: auto;
+        opacity: 0.85;
+    }
+}
+
 /* Sotto i 700px il menu diventa un elenco a tendina aperto dal tasto ☰,
    per non affollare l'intestazione su schermi piccoli. */
 @media (max-width: 700px) {
@@ -95,6 +124,10 @@ nav.app-nav {
     nav.app-nav a {
         padding: 1rem 1.2rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    nav.app-nav a.nav-attivo {
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: inset 3px 0 0 #fff;
     }
     .nav-toggle-checkbox:checked ~ nav.app-nav {
         display: flex;

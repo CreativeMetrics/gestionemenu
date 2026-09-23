@@ -22,6 +22,14 @@ function base_url(string $path = ''): string
     return rtrim($base, '/') . '/' . ltrim($path, '/');
 }
 
+/** Classe CSS da applicare alla voce di navigazione corrispondente alla pagina corrente. */
+function nav_attivo(string $path): string
+{
+    $corrente = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $attivo = $path === '/' ? $corrente === '/' : str_starts_with($corrente, $path);
+    return $attivo ? 'nav-attivo' : '';
+}
+
 function stagione_label(string $stagione): string
 {
     return [

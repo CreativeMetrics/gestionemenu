@@ -26,13 +26,13 @@ $nomeLocale = config_get('app', [])['nome_locale'] ?? 'Gestione Menu';
     <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
     <label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">☰</label>
     <nav class="app-nav">
-        <a href="/">Menu</a>
-        <a href="/foto/mancanti">Foto mancanti</a>
-        <a href="/import">Importa CSV</a>
+        <a href="/" class="<?= nav_attivo('/') ?>">Menu</a>
+        <a href="/foto/mancanti" class="<?= nav_attivo('/foto') ?>">Foto mancanti</a>
+        <a href="/import" class="<?= nav_attivo('/import') ?>">Importa CSV</a>
         <?php if (Auth::isAdmin()): ?>
-        <a href="/impostazioni">Impostazioni</a>
+        <a href="/impostazioni" class="<?= nav_attivo('/impostazioni') ?>">Impostazioni</a>
         <?php endif; ?>
-        <a href="/logout" onclick="return true;"><?= e($utente['nome']) ?> · esci</a>
+        <a href="/logout" class="app-nav-esci" onclick="return true;"><?= e($utente['nome']) ?> · esci</a>
     </nav>
     <?php endif; ?>
 </header>
