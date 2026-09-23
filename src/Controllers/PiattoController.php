@@ -9,6 +9,7 @@ use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
 use App\Repositories\StoricoRepository;
 use App\Services\ImageService;
+use App\Services\PrezzoRepairService;
 use App\Support\View;
 
 class PiattoController
@@ -188,7 +189,7 @@ class PiattoController
     /** @return array<string, mixed> */
     private function datiDaForm(): array
     {
-        $prezzoTesto = trim((string) ($_POST['prezzo_testo'] ?? ''));
+        $prezzoTesto = PrezzoRepairService::formatta(trim((string) ($_POST['prezzo_testo'] ?? '')));
         $tracce = trim((string) ($_POST['tracce_di'] ?? ''));
 
         return [

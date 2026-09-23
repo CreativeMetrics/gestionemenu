@@ -28,10 +28,24 @@ class ImageService
         if ($file['size'] > 15 * 1024 * 1024) {
             throw new \RuntimeException('File troppo grande (massimo 15MB).');
         }
+        if (!function_exists('imagecreatefromjpeg') || !function_exists('imagecreatetruecolor')) {
+            throw new \RuntimeException('Il server non ha l\'estensione GD per elaborare le immagini. Contatta l\'assistenza hosting.');
+        }
 
         $info = @getimagesize($file['tmp_name']);
         if ($info === false) {
             throw new \RuntimeException('Il file caricato non è un\'immagine valida.');
+        }
+
+        // Le foto degli smartphone moderni possono avere risoluzioni molto alte (40+ megapixel):
+        // decodificarle con GD richiede parecchia RAM. Alza il limite per questa richiesta, se possibile,
+        // per evitare un "Allowed memory size exhausted" che manderebbe in errore 500 la pagina.
+        $limiteMemoria = trim((string) ini_get('memory_limit'));
+        if ($limiteMemoria !== '-1' && function_exists('ini_set')) {
+            @ini_set('memory_limit', '512M');
+        }
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(60);
         }
 
         $mime = $info['mime'];
@@ -41,13 +55,16 @@ class ImageService
             'image/webp' => function_exists('imagecreatefromwebp') ? imagecreatefromwebp($file['tmp_name']) : false,
             default => false,
         };
-        if ($sorgente === false) {
+        if (!($sorgente instanceof \GdImage)) {
             throw new \RuntimeException('Formato immagine non supportato (usa JPEG, PNG o WEBP).');
         }
 
         // Corregge l'orientamento da EXIF (comune con le foto da smartphone).
         if ($mime === 'image/jpeg' && function_exists('exif_read_data')) {
-            $sorgente = $this->correggiOrientamento($sorgente, $file['tmp_name']);
+            $ruotata = $this->correggiOrientamento($sorgente, $file['tmp_name']);
+            if ($ruotata instanceof \GdImage) {
+                $sorgente = $ruotata;
+            }
         }
 
         $larghezza = imagesx($sorgente);
@@ -130,8 +147,11 @@ class ImageService
         return $this->dir . '/' . basename($nomeFile);
     }
 
-    /** @return \GdImage */
-    private function correggiOrientamento(\GdImage $img, string $percorsoTmp): \GdImage
+    /**
+     * Restituisce l'immagine ruotata, oppure false se imagerotate() fallisce (in tal caso il
+     * chiamante deve tenere l'immagine originale invece di propagare l'errore).
+     */
+    private function correggiOrientamento(\GdImage $img, string $percorsoTmp): \GdImage|false
     {
         $exif = @exif_read_data($percorsoTmp);
         if (!$exif || empty($exif['Orientation'])) {

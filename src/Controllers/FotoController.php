@@ -50,6 +50,14 @@ class FotoController
             flash('errore', $e->getMessage());
             redirect('/piatti/' . $id . '/foto');
             return;
+        } catch (\Throwable $e) {
+            // Qualunque altro errore imprevisto (es. immagine troppo grande per la RAM disponibile):
+            // meglio un messaggio comprensibile che una pagina di errore 500. Il dettaglio tecnico
+            // finisce nel log del server (visibile da Plesk) per poterlo individuare.
+            error_log('Caricamento foto piatto ' . $id . ' fallito: ' . $e->getMessage());
+            flash('errore', 'Caricamento della foto non riuscito. Se la foto è molto grande prova a ridurla o a scattarla con una risoluzione minore, altrimenti contatta l\'assistenza.');
+            redirect('/piatti/' . $id . '/foto');
+            return;
         }
 
         $this->imageService->elimina($piatto['foto_path']);

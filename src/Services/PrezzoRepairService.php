@@ -21,7 +21,7 @@ class PrezzoRepairService
     {
         $modificati = 0;
         foreach ($this->piattoRepo->tutti() as $piatto) {
-            $nuovo = $this->correggi((string) $piatto['prezzo_testo']);
+            $nuovo = self::correggi((string) $piatto['prezzo_testo']);
             if ($nuovo !== null && $nuovo !== $piatto['prezzo_testo']) {
                 $this->piattoRepo->aggiornaPrezzoTesto((int) $piatto['id'], $nuovo);
                 $modificati++;
@@ -30,7 +30,17 @@ class PrezzoRepairService
         return $modificati;
     }
 
-    private function correggi(string $testo): ?string
+    /**
+     * Applica lo stesso formato riconosciuto da correggiTutti() a un singolo prezzo appena
+     * digitato (es. in creazione/modifica piatto), aggiungendo "€" quando manca. Se il testo non
+     * corrisponde a un pattern noto lo lascia invariato (può essere testo libero scritto a mano).
+     */
+    public static function formatta(string $testo): string
+    {
+        return self::correggi($testo) ?? $testo;
+    }
+
+    private static function correggi(string $testo): ?string
     {
         $testo = trim($testo);
         if ($testo === '') {
