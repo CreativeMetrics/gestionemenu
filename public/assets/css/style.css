@@ -42,6 +42,15 @@ header.app-header a { color: #fff; text-decoration: none; font-weight: 600; }
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.app-logo {
+    height: 34px;
+    width: 34px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 nav.app-nav {

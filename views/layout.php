@@ -13,11 +13,15 @@ $nomeLocale = config_get('app', [])['nome_locale'] ?? 'Gestione Menu';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($nomeLocale) ?> — Gestione Menu</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
 <header class="app-header">
-    <a href="/" class="app-brand">🍽 <?= e($nomeLocale) ?></a>
+    <a href="/" class="app-brand"><img src="/assets/img/logo.png" alt="" class="app-logo"> <?= e($nomeLocale) ?></a>
     <?php if ($utente): ?>
     <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
     <label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">☰</label>
