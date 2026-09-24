@@ -1,3 +1,4 @@
+<?php use App\Csrf; ?>
 <h1>Export InDesign — <?= e(stagione_label($menu['stagione'])) ?> <?= (int) $menu['anno'] ?></h1>
 <p class="help-text">
     File InDesign Tagged Text (.txt), codifica Unicode. Prima di importarli assicurati di avere nel documento
@@ -43,8 +44,8 @@ foreach ($etichetteGruppo as $gruppo => $etichetta):
             ⚠ Ci sono modifiche non ancora in questo export.
         </p>
         <?php if ($mod !== null && ($mod['nuovi'] !== [] || $mod['modificati'] !== [] || $mod['rimossi'] !== [])): ?>
-        <details style="margin-bottom:0.6rem;">
-            <summary style="cursor:pointer;">Cosa correggere a mano in InDesign, senza reimportare tutto</summary>
+        <details open style="margin-bottom:0.6rem;">
+            <summary style="cursor:pointer; font-weight:600;">Cosa correggere a mano in InDesign, senza reimportare tutto</summary>
             <ul style="margin:0.5rem 0 0; padding-left:1.2rem;">
                 <?php foreach ($mod['nuovi'] as $p): ?>
                     <li><strong><?= e($p['nome']) ?></strong> <span class="help-text">(<?= e($p['portata']) ?>)</span> — nuovo piatto, va aggiunto.</li>
@@ -71,7 +72,15 @@ foreach ($etichetteGruppo as $gruppo => $etichetta):
         <?php endif; ?>
     <?php endif; ?>
 
-    <a class="btn" href="/menu/<?= (int) $menu['id'] ?>/export/indesign/<?= $gruppo ?>">Scarica .txt</a>
+    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
+        <a class="btn" href="/menu/<?= (int) $menu['id'] ?>/export/indesign/<?= $gruppo ?>">Scarica .txt</a>
+        <?php if ($stato['ha_modifiche']): ?>
+        <form method="post" action="/menu/<?= (int) $menu['id'] ?>/export/indesign/<?= $gruppo ?>/segna-allineato">
+            <?= Csrf::field() ?>
+            <button type="submit" class="btn-secondario">Ho già corretto a mano in InDesign</button>
+        </form>
+        <?php endif; ?>
+    </div>
 </div>
 <?php endforeach; ?>
 

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Auth;
+use App\Csrf;
 use App\Repositories\MenuRepository;
 use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
@@ -88,6 +89,26 @@ class ExportController
         header('Content-Disposition: attachment; filename="' . $nomeFile . '"');
         header('Content-Length: ' . strlen($contenuto));
         echo $contenuto;
+    }
+
+    /**
+     * Per quando le modifiche vengono corrette a mano direttamente in InDesign (seguendo l'elenco
+     * "cosa correggere") invece di reimportare il file: segna comunque quella parte del menu come
+     * allineata, senza dover scaricare di nuovo il .txt solo per azzerare l'avviso.
+     */
+    public function segnaAllineato(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyOrFail();
+        $menu = $this->menuRepo->find((int) $params['id']);
+        $gruppo = $params['gruppo'] === 'dolci_drink' ? 'dolci_drink' : 'principale';
+        if (!$menu) {
+            http_response_code(404);
+            die('Menu non trovato.');
+        }
+        $this->menuRepo->segnaEsportato((int) $menu['id'], $gruppo);
+        flash('ok', 'Segnato come allineato: le modifiche recenti non verranno più segnalate come mancanti.');
+        redirect('/menu/' . $menu['id'] . '/export/indesign');
     }
 
     public function stampa(array $params): void

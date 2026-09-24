@@ -82,6 +82,7 @@ $router->post('/import/conferma', fn () => (new ImportController())->conferma())
 $router->get('/menu/{id}/export/csv', fn ($p) => (new ExportController())->csv($p));
 $router->get('/menu/{id}/export/indesign', fn ($p) => (new ExportController())->indesignMenu($p));
 $router->get('/menu/{id}/export/indesign/{gruppo}', fn ($p) => (new ExportController())->indesignFile($p));
+$router->post('/menu/{id}/export/indesign/{gruppo}/segna-allineato', fn ($p) => (new ExportController())->segnaAllineato($p));
 $router->get('/menu/{id}/stampa', fn ($p) => (new ExportController())->stampa($p));
 
 // Impostazioni
