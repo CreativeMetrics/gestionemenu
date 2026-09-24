@@ -17,7 +17,7 @@ $nomeLocale = config_get('app', [])['nome_locale'] ?? 'Gestione Menu';
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="<?= e(asset_url('/assets/css/style.css')) ?>">
 </head>
 <body>
 <header class="app-header">
@@ -43,6 +43,6 @@ $nomeLocale = config_get('app', [])['nome_locale'] ?? 'Gestione Menu';
     <?php $contentFile(); ?>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script src="/assets/js/app.js"></script>
+<script src="<?= e(asset_url('/assets/js/app.js')) ?>"></script>
 </body>
 </html>

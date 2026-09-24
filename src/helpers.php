@@ -22,6 +22,18 @@ function base_url(string $path = ''): string
     return rtrim($base, '/') . '/' . ltrim($path, '/');
 }
 
+/**
+ * Aggiunge all'URL di un file in public/assets un "?v=" basato sulla data di ultima modifica del
+ * file: cambia da solo ogni volta che il file viene sostituito su Plesk, così il browser (o una
+ * cache intermedia) è costretto a scaricare la versione nuova invece di quella vecchia in cache.
+ */
+function asset_url(string $percorso): string
+{
+    $assoluto = __DIR__ . '/../public' . $percorso;
+    $versione = is_file($assoluto) ? filemtime($assoluto) : time();
+    return $percorso . '?v=' . $versione;
+}
+
 /** Etichetta leggibile per un nome di campo registrato nello storico modifiche di un piatto. */
 function campo_label(string $campo): string
 {
