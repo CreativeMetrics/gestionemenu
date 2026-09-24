@@ -36,7 +36,7 @@
             <div class="help-text"><?= e($p['portata_nome']) ?></div>
         </div>
         <div class="piatto-azioni">
-            <a class="btn btn-small" href="/piatti/<?= (int) $p['id'] ?>/foto">Aggiungi foto</a>
+            <a class="btn btn-small" href="/piatti/<?= (int) $p['id'] ?>#foto">Aggiungi foto</a>
             <form method="post" action="/piatti/<?= (int) $p['id'] ?>/foto/esterna" style="display:inline;">
                 <?= Csrf::field() ?>
                 <input type="hidden" name="esterna" value="1">

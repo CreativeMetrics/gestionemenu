@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Auth;
 use App\Csrf;
 use App\Repositories\AllergeneRepository;
+use App\Repositories\MenuRepository;
 use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
 use App\Repositories\StoricoRepository;
@@ -16,6 +17,7 @@ class PiattoController
 {
     private PiattoRepository $piattoRepo;
     private PortataRepository $portataRepo;
+    private MenuRepository $menuRepo;
     private AllergeneRepository $allergeneRepo;
     private StoricoRepository $storicoRepo;
     private ImageService $imageService;
@@ -24,9 +26,36 @@ class PiattoController
     {
         $this->piattoRepo = new PiattoRepository();
         $this->portataRepo = new PortataRepository();
+        $this->menuRepo = new MenuRepository();
         $this->allergeneRepo = new AllergeneRepository();
         $this->storicoRepo = new StoricoRepository();
         $this->imageService = new ImageService();
+    }
+
+    /**
+     * Scheda unica del piatto: raggruppa modifica dati, foto e storico modifiche, per non dover
+     * saltare tra pagine diverse per gestire lo stesso piatto.
+     */
+    public function scheda(array $params): void
+    {
+        Auth::requireLogin();
+        $id = (int) $params['id'];
+        $piatto = $this->piattoRepo->findConMenu($id);
+        if (!$piatto) {
+            http_response_code(404);
+            die('Piatto non trovato.');
+        }
+        $menu = $this->menuRepo->find((int) $piatto['menu_id']);
+        View::render('piatto/scheda', [
+            'piatto' => $piatto,
+            'portata' => $this->portataRepo->find((int) $piatto['portata_id']),
+            'menu' => $menu,
+            'soloLettura' => $menu && $menu['stato'] === 'archiviato',
+            'allergeni' => $this->allergeneRepo->all(),
+            'allergeniSelezionati' => $this->piattoRepo->allergeniIds($id),
+            'tracceSelezionate' => array_filter(array_map('trim', explode(',', (string) $piatto['tracce_di']))),
+            'voci' => $this->storicoRepo->forPiatto($id),
+        ]);
     }
 
     public function nuovoForm(): void
@@ -39,11 +68,8 @@ class PiattoController
             die('Portata non trovata.');
         }
         View::render('piatto/form', [
-            'piatto' => null,
             'portata' => $portata,
             'allergeni' => $this->allergeneRepo->all(),
-            'allergeniSelezionati' => [],
-            'tracceSelezionate' => [],
         ]);
     }
 
@@ -75,26 +101,7 @@ class PiattoController
         $this->storicoRepo->log($id, $dati['nome'], $utente['id'], 'creazione', null, $dati['nome']);
 
         flash('ok', 'Piatto "' . $dati['nome'] . '" aggiunto.');
-        redirect('/menu/' . $portata['menu_id']);
-    }
-
-    public function modificaForm(array $params): void
-    {
-        Auth::requireLogin();
-        $id = (int) $params['id'];
-        $piatto = $this->piattoRepo->findConMenu($id);
-        if (!$piatto) {
-            http_response_code(404);
-            die('Piatto non trovato.');
-        }
-        $portata = $this->portataRepo->find((int) $piatto['portata_id']);
-        View::render('piatto/form', [
-            'piatto' => $piatto,
-            'portata' => $portata,
-            'allergeni' => $this->allergeneRepo->all(),
-            'allergeniSelezionati' => $this->piattoRepo->allergeniIds($id),
-            'tracceSelezionate' => array_filter(array_map('trim', explode(',', (string) $piatto['tracce_di']))),
-        ]);
+        redirect('/piatti/' . $id);
     }
 
     public function modifica(array $params): void
@@ -114,7 +121,7 @@ class PiattoController
 
         if ($dati['nome'] === '') {
             flash('errore', 'Il nome del piatto è obbligatorio.');
-            redirect('/menu/' . $piattoAttuale['menu_id']);
+            redirect('/piatti/' . $id);
             return;
         }
 
@@ -150,7 +157,7 @@ class PiattoController
         $this->piattoRepo->setAllergeni($id, $allergeniDopoIds);
 
         flash('ok', 'Piatto aggiornato.');
-        redirect('/menu/' . $piattoAttuale['menu_id']);
+        redirect('/piatti/' . $id);
     }
 
     /**
@@ -186,7 +193,7 @@ class PiattoController
         $this->storicoRepo->log($nuovoId, $nomeCopia, $utente['id'], 'creazione', null, 'Duplicato da "' . $originale['nome'] . '"');
 
         flash('ok', 'Piatto duplicato (foto non copiata: caricane una nuova se serve).');
-        redirect('/menu/' . $originale['menu_id']);
+        redirect('/piatti/' . $nuovoId);
     }
 
     public function elimina(array $params): void
@@ -212,21 +219,6 @@ class PiattoController
         $this->piattoRepo->delete($id);
         flash('ok', 'Piatto eliminato.');
         redirect('/menu/' . $piatto['menu_id']);
-    }
-
-    public function storico(array $params): void
-    {
-        Auth::requireLogin();
-        $id = (int) $params['id'];
-        $piatto = $this->piattoRepo->findConMenu($id);
-        if (!$piatto) {
-            http_response_code(404);
-            die('Piatto non trovato.');
-        }
-        View::render('piatto/storico', [
-            'piatto' => $piatto,
-            'voci' => $this->storicoRepo->forPiatto($id),
-        ]);
     }
 
     public function riordina(): void

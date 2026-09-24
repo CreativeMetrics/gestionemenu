@@ -109,21 +109,9 @@ if (!empty($partiConModifiche)):
                         <?php endif; ?>
                         <div class="piatto-meta">
                             <span class="piatto-prezzo"><?= e($piatto['prezzo_testo']) ?></span>
-                            <?php if (!$soloLettura): ?>
                             <div class="piatto-azioni no-print">
-                                <a class="btn btn-small btn-secondario" href="/piatti/<?= (int) $piatto['id'] ?>/foto">Foto</a>
-                                <a class="btn btn-small btn-secondario" href="/piatti/<?= (int) $piatto['id'] ?>/modifica">Modifica</a>
-                                <form method="post" action="/piatti/<?= (int) $piatto['id'] ?>/duplica" style="display:inline;">
-                                    <?= Csrf::field() ?>
-                                    <button type="submit" class="btn btn-small btn-secondario">Duplica</button>
-                                </form>
-                                <a class="btn btn-small btn-secondario" href="/piatti/<?= (int) $piatto['id'] ?>/storico">Storico</a>
-                                <form method="post" action="/piatti/<?= (int) $piatto['id'] ?>/elimina" onsubmit="return confirm('Eliminare questo piatto?');" style="display:inline;">
-                                    <?= Csrf::field() ?>
-                                    <button type="submit" class="btn-small btn-pericolo">Elimina</button>
-                                </form>
+                                <a class="btn btn-small btn-secondario" href="/piatti/<?= (int) $piatto['id'] ?>">Apri scheda</a>
                             </div>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

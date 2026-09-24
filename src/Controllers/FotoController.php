@@ -22,17 +22,6 @@ class FotoController
         $this->imageService = new ImageService();
     }
 
-    public function form(array $params): void
-    {
-        Auth::requireLogin();
-        $piatto = $this->piattoRepo->findConMenu((int) $params['id']);
-        if (!$piatto) {
-            http_response_code(404);
-            die('Piatto non trovato.');
-        }
-        View::render('foto/carica', ['piatto' => $piatto]);
-    }
-
     public function carica(array $params): void
     {
         Auth::requireLogin();
@@ -48,7 +37,7 @@ class FotoController
             $nomeFile = $this->imageService->salvaFotoCaricata($_FILES['foto'] ?? [], $id, $piatto['nome']);
         } catch (\RuntimeException $e) {
             flash('errore', $e->getMessage());
-            redirect('/piatti/' . $id . '/foto');
+            redirect('/piatti/' . $id . '#foto');
             return;
         } catch (\Throwable $e) {
             // Qualunque altro errore imprevisto (es. immagine troppo grande per la RAM disponibile):
@@ -56,14 +45,14 @@ class FotoController
             // finisce nel log del server (visibile da Plesk) per poterlo individuare.
             error_log('Caricamento foto piatto ' . $id . ' fallito: ' . $e->getMessage());
             flash('errore', 'Caricamento della foto non riuscito. Se la foto è molto grande prova a ridurla o a scattarla con una risoluzione minore, altrimenti contatta l\'assistenza.');
-            redirect('/piatti/' . $id . '/foto');
+            redirect('/piatti/' . $id . '#foto');
             return;
         }
 
         $this->imageService->elimina($piatto['foto_path']);
         $this->piattoRepo->setFoto($id, $nomeFile);
         flash('ok', 'Foto caricata.');
-        redirect('/menu/' . $piatto['menu_id']);
+        redirect('/piatti/' . $id . '#foto');
     }
 
     public function rimuovi(array $params): void
@@ -79,7 +68,7 @@ class FotoController
         $this->imageService->elimina($piatto['foto_path']);
         $this->piattoRepo->setFoto($id, null);
         flash('ok', 'Foto rimossa.');
-        redirect('/piatti/' . $id . '/foto');
+        redirect('/piatti/' . $id . '#foto');
     }
 
     /**
@@ -106,7 +95,7 @@ class FotoController
         if (($_POST['origine'] ?? '') === 'mancanti') {
             redirect('/foto/mancanti?menu_id=' . (int) $piatto['menu_id']);
         } else {
-            redirect('/piatti/' . $id . '/foto');
+            redirect('/piatti/' . $id . '#foto');
         }
     }
 

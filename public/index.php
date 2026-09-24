@@ -55,16 +55,14 @@ $router->post('/portate/riordina', fn () => (new PortataController())->riordina(
 
 // Piatti
 $router->get('/piatti/nuovo', fn () => (new PiattoController())->nuovoForm());
+$router->get('/piatti/{id}', fn ($p) => (new PiattoController())->scheda($p));
 $router->post('/piatti', fn () => (new PiattoController())->crea());
 $router->post('/piatti/riordina', fn () => (new PiattoController())->riordina());
-$router->get('/piatti/{id}/modifica', fn ($p) => (new PiattoController())->modificaForm($p));
 $router->post('/piatti/{id}/modifica', fn ($p) => (new PiattoController())->modifica($p));
 $router->post('/piatti/{id}/duplica', fn ($p) => (new PiattoController())->duplica($p));
 $router->post('/piatti/{id}/elimina', fn ($p) => (new PiattoController())->elimina($p));
-$router->get('/piatti/{id}/storico', fn ($p) => (new PiattoController())->storico($p));
 
 // Foto
-$router->get('/piatti/{id}/foto', fn ($p) => (new FotoController())->form($p));
 $router->post('/piatti/{id}/foto', fn ($p) => (new FotoController())->carica($p));
 $router->post('/piatti/{id}/foto/rimuovi', fn ($p) => (new FotoController())->rimuovi($p));
 $router->post('/piatti/{id}/foto/esterna', fn ($p) => (new FotoController())->segnaEsterna($p));
