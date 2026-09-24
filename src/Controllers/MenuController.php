@@ -7,6 +7,7 @@ use App\Csrf;
 use App\Repositories\MenuRepository;
 use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
+use App\Services\IndesignExportService;
 use App\Services\SeasonService;
 use App\Support\View;
 
@@ -16,6 +17,7 @@ class MenuController
     private PortataRepository $portataRepo;
     private PiattoRepository $piattoRepo;
     private SeasonService $seasonService;
+    private IndesignExportService $indesignService;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class MenuController
         $this->portataRepo = new PortataRepository();
         $this->piattoRepo = new PiattoRepository();
         $this->seasonService = new SeasonService();
+        $this->indesignService = new IndesignExportService();
     }
 
     public function index(): void
@@ -62,6 +65,7 @@ class MenuController
             'portate' => $portate,
             'piattiPerPortata' => $piattiPerPortata,
             'soloLettura' => $menu['stato'] === 'archiviato',
+            'statoExport' => $this->indesignService->statoExport($menu),
         ]);
     }
 

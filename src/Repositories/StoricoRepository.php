@@ -28,4 +28,49 @@ class StoricoRepository
         $stmt->execute([$piattoId]);
         return $stmt->fetchAll();
     }
+
+    /**
+     * Registra l'eliminazione di un piatto con "dove si trovava" (menu/gruppo impaginato)
+     * salvato a parte: piatto_id resta valorizzato finché il DELETE dei piatti non lo azzera
+     * (ON DELETE SET NULL), ma da quel momento in poi è menu_id_snapshot/gruppo_impaginato_snapshot
+     * l'unico modo per sapere a quale export apparteneva questa riga.
+     */
+    public function logEliminazione(int $piattoId, string $nomeSnapshot, ?int $userId, int $menuId, string $gruppoImpaginato): void
+    {
+        $stmt = Db::conn()->prepare(
+            'INSERT INTO piatto_storico (piatto_id, nome_piatto_snapshot, user_id, campo, valore_precedente, valore_nuovo, menu_id_snapshot, gruppo_impaginato_snapshot)
+             VALUES (?, ?, ?, ?, ?, NULL, ?, ?)'
+        );
+        $stmt->execute([$piattoId, $nomeSnapshot, $userId, 'eliminazione', $nomeSnapshot, $menuId, $gruppoImpaginato]);
+    }
+
+    /**
+     * Piatti eliminati dopo $dal che appartenevano a quella parte di quel menu, per l'elenco
+     * "modifiche dall'ultimo export".
+     * @return array<int, array<string, mixed>>
+     */
+    public function eliminatiPerMenuGruppo(int $menuId, string $gruppoImpaginato, string $dal): array
+    {
+        $sql = "SELECT * FROM piatto_storico
+                WHERE campo = 'eliminazione' AND menu_id_snapshot = ? AND gruppo_impaginato_snapshot = ? AND creato_il > ?
+                ORDER BY creato_il DESC";
+        $stmt = Db::conn()->prepare($sql);
+        $stmt->execute([$menuId, $gruppoImpaginato, $dal]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Modifiche di campo (non l'eliminazione) registrate per un piatto dopo $dal, per l'elenco
+     * "modifiche dall'ultimo export".
+     * @return array<int, array<string, mixed>>
+     */
+    public function modificheDalPerPiatto(int $piattoId, string $dal): array
+    {
+        $sql = "SELECT * FROM piatto_storico
+                WHERE piatto_id = ? AND campo != 'eliminazione' AND campo != 'creazione' AND creato_il > ?
+                ORDER BY creato_il ASC";
+        $stmt = Db::conn()->prepare($sql);
+        $stmt->execute([$piattoId, $dal]);
+        return $stmt->fetchAll();
+    }
 }

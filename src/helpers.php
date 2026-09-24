@@ -22,6 +22,19 @@ function base_url(string $path = ''): string
     return rtrim($base, '/') . '/' . ltrim($path, '/');
 }
 
+/** Etichetta leggibile per un nome di campo registrato nello storico modifiche di un piatto. */
+function campo_label(string $campo): string
+{
+    return [
+        'nome' => 'Nome',
+        'descrizione' => 'Descrizione',
+        'prezzo_testo' => 'Prezzo',
+        'tracce_di' => 'Tracce di',
+        'note_interne' => 'Note interne',
+        'allergeni' => 'Allergeni',
+    ][$campo] ?? ucfirst($campo);
+}
+
 /** Classe CSS da applicare alla voce di navigazione corrispondente alla pagina corrente. */
 function nav_attivo(string $path): string
 {

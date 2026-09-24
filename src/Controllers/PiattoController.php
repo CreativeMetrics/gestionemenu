@@ -129,8 +129,25 @@ class PiattoController
             );
         }
 
+        $allergeniPrimaIds = $this->piattoRepo->allergeniIds($id);
+        $allergeniDopoIds = $this->allergeniPostati('allergeni');
+        sort($allergeniPrimaIds);
+        sort($allergeniDopoIds);
+        if ($allergeniPrimaIds !== $allergeniDopoIds) {
+            $nomi = $this->allergeneRepo->tuttiIndicizzati();
+            $nomiDi = fn (array $ids) => implode(', ', array_map(fn ($i) => $nomi[$i]['nome'] ?? '#' . $i, $ids)) ?: '(nessuno)';
+            $this->storicoRepo->log(
+                $id,
+                $dati['nome'] ?: $piattoAttuale['nome'],
+                $utente['id'],
+                'allergeni',
+                $nomiDi($allergeniPrimaIds),
+                $nomiDi($allergeniDopoIds)
+            );
+        }
+
         $this->piattoRepo->update($id, $dati);
-        $this->piattoRepo->setAllergeni($id, $this->allergeniPostati('allergeni'));
+        $this->piattoRepo->setAllergeni($id, $allergeniDopoIds);
 
         flash('ok', 'Piatto aggiornato.');
         redirect('/menu/' . $piattoAttuale['menu_id']);
@@ -176,12 +193,21 @@ class PiattoController
     {
         Auth::requireLogin();
         Csrf::verifyOrFail();
+        $utente = Auth::user();
         $id = (int) $params['id'];
         $piatto = $this->piattoRepo->findConMenu($id);
         if (!$piatto) {
             http_response_code(404);
             die('Piatto non trovato.');
         }
+        $portata = $this->portataRepo->find((int) $piatto['portata_id']);
+        $this->storicoRepo->logEliminazione(
+            $id,
+            $piatto['nome'],
+            $utente['id'],
+            (int) $piatto['menu_id'],
+            $portata['gruppo_impaginato'] ?? 'principale'
+        );
         $this->imageService->elimina($piatto['foto_path']);
         $this->piattoRepo->delete($id);
         flash('ok', 'Piatto eliminato.');

@@ -51,9 +51,22 @@ class ExportController
             http_response_code(404);
             die('Menu non trovato.');
         }
+        $statoExport = $this->indesignService->statoExport($menu);
+        $modifiche = [];
+        foreach (['principale', 'dolci_drink'] as $gruppo) {
+            if ($statoExport[$gruppo]['esportato_il'] !== null) {
+                $modifiche[$gruppo] = $this->indesignService->modifiche(
+                    (int) $menu['id'],
+                    $gruppo,
+                    $statoExport[$gruppo]['esportato_il']
+                );
+            }
+        }
         \App\Support\View::render('export/indesign', [
             'menu' => $menu,
             'problemi' => $this->indesignService->problemi((int) $menu['id']),
+            'statoExport' => $statoExport,
+            'modifiche' => $modifiche,
         ]);
     }
 
@@ -67,6 +80,7 @@ class ExportController
             die('Menu non trovato.');
         }
         $contenuto = $this->indesignService->generaFile((int) $menu['id'], $gruppo);
+        $this->menuRepo->segnaEsportato((int) $menu['id'], $gruppo);
         $suffisso = $gruppo === 'dolci_drink' ? 'dolci-drink' : 'principale';
         $nomeFile = 'indesign_' . $menu['stagione'] . '_' . $menu['anno'] . '_' . $suffisso . '.txt';
 

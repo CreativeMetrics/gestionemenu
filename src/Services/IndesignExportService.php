@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\ImpostazioniRepository;
 use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
+use App\Repositories\StoricoRepository;
 
 /**
  * Genera un file InDesign Tagged Text (.txt) per un menu.
@@ -37,7 +38,78 @@ class IndesignExportService
         private ImpostazioniRepository $impostazioniRepo = new ImpostazioniRepository(),
         private PortataRepository $portataRepo = new PortataRepository(),
         private PiattoRepository $piattoRepo = new PiattoRepository(),
+        private StoricoRepository $storicoRepo = new StoricoRepository(),
     ) {
+    }
+
+    /**
+     * Stato dell'export per le due parti del menu: quando è stato scaricato l'ultimo file (o mai)
+     * e se da allora ci sono modifiche ai piatti che quel file non contiene ancora.
+     * @param array<string, mixed> $menu riga della tabella menus
+     * @return array<string, array{esportato_il: ?string, ha_modifiche: bool}>
+     */
+    public function statoExport(array $menu): array
+    {
+        $stato = [];
+        foreach (['principale', 'dolci_drink'] as $gruppo) {
+            $esportatoIl = $gruppo === 'dolci_drink' ? $menu['export_dolci_drink_il'] : $menu['export_principale_il'];
+            if ($esportatoIl === null) {
+                $haModifiche = $this->contaPiatti((int) $menu['id'], $gruppo) > 0;
+            } else {
+                $m = $this->modifiche((int) $menu['id'], $gruppo, $esportatoIl);
+                $haModifiche = $m['nuovi'] !== [] || $m['modificati'] !== [] || $m['rimossi'] !== [];
+            }
+            $stato[$gruppo] = ['esportato_il' => $esportatoIl, 'ha_modifiche' => $haModifiche];
+        }
+        return $stato;
+    }
+
+    private function contaPiatti(int $menuId, string $gruppo): int
+    {
+        $n = 0;
+        foreach ($this->portataRepo->forMenu($menuId) as $portata) {
+            if ($portata['gruppo_impaginato'] === $gruppo) {
+                $n += count($this->piattoRepo->forPortata((int) $portata['id']));
+            }
+        }
+        return $n;
+    }
+
+    /**
+     * Piatti nuovi, modificati o eliminati in quella parte del menu da $dal in poi (di solito la
+     * data dell'ultimo export scaricato), con il dettaglio campo per campo per i modificati preso
+     * dallo storico - per sapere esattamente cosa correggere a mano in InDesign senza dover
+     * reimportare/reimpaginare tutto il testo.
+     * @return array{nuovi: array<int, array<string, string>>, modificati: array<int, array<string, mixed>>, rimossi: array<int, array<string, string>>}
+     */
+    public function modifiche(int $menuId, string $gruppo, string $dal): array
+    {
+        $nuovi = [];
+        $modificati = [];
+        foreach ($this->portataRepo->forMenu($menuId) as $portata) {
+            if ($portata['gruppo_impaginato'] !== $gruppo) {
+                continue;
+            }
+            foreach ($this->piattoRepo->forPortata((int) $portata['id']) as $piatto) {
+                if ($piatto['creato_il'] > $dal) {
+                    $nuovi[] = ['nome' => $piatto['nome'], 'portata' => $portata['nome']];
+                    continue;
+                }
+                if ($piatto['aggiornato_il'] > $dal) {
+                    $campi = $this->storicoRepo->modificheDalPerPiatto((int) $piatto['id'], $dal);
+                    if ($campi !== []) {
+                        $modificati[] = ['nome' => $piatto['nome'], 'portata' => $portata['nome'], 'campi' => $campi];
+                    }
+                }
+            }
+        }
+
+        $rimossi = [];
+        foreach ($this->storicoRepo->eliminatiPerMenuGruppo($menuId, $gruppo, $dal) as $e) {
+            $rimossi[] = ['nome' => $e['nome_piatto_snapshot']];
+        }
+
+        return ['nuovi' => $nuovi, 'modificati' => $modificati, 'rimossi' => $rimossi];
     }
 
     /**

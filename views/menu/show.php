@@ -8,6 +8,17 @@ $titolo = stagione_label($menu['stagione']) . ' ' . $menu['anno'];
     <h1 style="margin-bottom:0;"><?= e($titolo) ?> <span class="<?= stato_badge_class($menu['stato']) ?>"><?= e(stato_label($menu['stato'])) ?></span></h1>
 </div>
 
+<?php
+$partiConModifiche = array_filter($statoExport ?? [], fn ($s) => $s['ha_modifiche']);
+if (!empty($partiConModifiche)):
+    $nomiParti = array_map(fn ($g) => $g === 'dolci_drink' ? 'dolci & drink' : 'menu principale', array_keys($partiConModifiche));
+?>
+<div class="flash flash-info no-print">
+    Ci sono modifiche non ancora esportate per InDesign (<?= e(implode(', ', $nomiParti)) ?>).
+    <a href="/menu/<?= (int) $menu['id'] ?>/export/indesign">Vai all'export →</a>
+</div>
+<?php endif; ?>
+
 <div class="card no-print">
     <div class="form-riga" style="align-items:center;">
         <?php if (!$soloLettura): ?>

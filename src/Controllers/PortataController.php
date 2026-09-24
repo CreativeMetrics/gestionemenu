@@ -5,17 +5,26 @@ namespace App\Controllers;
 use App\Auth;
 use App\Csrf;
 use App\Repositories\MenuRepository;
+use App\Repositories\PiattoRepository;
 use App\Repositories\PortataRepository;
+use App\Repositories\StoricoRepository;
+use App\Services\ImageService;
 
 class PortataController
 {
     private PortataRepository $portataRepo;
     private MenuRepository $menuRepo;
+    private PiattoRepository $piattoRepo;
+    private StoricoRepository $storicoRepo;
+    private ImageService $imageService;
 
     public function __construct()
     {
         $this->portataRepo = new PortataRepository();
         $this->menuRepo = new MenuRepository();
+        $this->piattoRepo = new PiattoRepository();
+        $this->storicoRepo = new StoricoRepository();
+        $this->imageService = new ImageService();
     }
 
     public function crea(): void
@@ -65,6 +74,7 @@ class PortataController
     {
         Auth::requireLogin();
         Csrf::verifyOrFail();
+        $utente = Auth::user();
         $id = (int) $params['id'];
         $portata = $this->portataRepo->find($id);
         if (!$portata) {
@@ -72,6 +82,20 @@ class PortataController
             die('Portata non trovata.');
         }
         $menuId = $portata['menu_id'];
+
+        // Eliminare la portata cancella i suoi piatti "a cascata" nel database: senza registrarlo
+        // qui, l'elenco "modifiche dall'ultimo export" non si accorgerebbe che sono spariti.
+        foreach ($this->piattoRepo->forPortata($id) as $piatto) {
+            $this->storicoRepo->logEliminazione(
+                (int) $piatto['id'],
+                $piatto['nome'],
+                $utente['id'],
+                (int) $menuId,
+                $portata['gruppo_impaginato']
+            );
+            $this->imageService->elimina($piatto['foto_path']);
+        }
+
         $this->portataRepo->delete($id);
         flash('ok', 'Portata eliminata (con tutti i suoi piatti).');
         redirect('/menu/' . $menuId);

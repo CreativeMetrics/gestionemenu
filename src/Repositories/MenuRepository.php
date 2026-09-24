@@ -78,4 +78,12 @@ class MenuRepository
         $stmt = Db::conn()->prepare("UPDATE menus SET stato = ?{$pubblicataIl} WHERE id = ?");
         $stmt->execute([$stato, $id]);
     }
+
+    /** Registra "adesso" come data dell'ultimo export scaricato per quella parte del menu. */
+    public function segnaEsportato(int $id, string $gruppo): void
+    {
+        $colonna = $gruppo === 'dolci_drink' ? 'export_dolci_drink_il' : 'export_principale_il';
+        $stmt = Db::conn()->prepare("UPDATE menus SET {$colonna} = NOW() WHERE id = ?");
+        $stmt->execute([$id]);
+    }
 }

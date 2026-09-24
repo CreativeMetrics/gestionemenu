@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS menus (
     duplicato_da_menu_id INT UNSIGNED NULL,
     creato_il DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     pubblicato_il DATETIME NULL,
+    -- Data dell'ultimo export InDesign scaricato per ciascuna delle due parti del menu: confrontata
+    -- con la data di ultima modifica dei piatti per avvisare se il file scaricato è superato.
+    export_principale_il DATETIME NULL,
+    export_dolci_drink_il DATETIME NULL,
     UNIQUE KEY uniq_stagione_anno (stagione, anno),
     CONSTRAINT fk_menu_duplicato FOREIGN KEY (duplicato_da_menu_id) REFERENCES menus(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -77,16 +81,23 @@ CREATE TABLE IF NOT EXISTS piatto_allergeni (
 
 CREATE TABLE IF NOT EXISTS piatto_storico (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    piatto_id INT UNSIGNED NOT NULL,
+    -- NULL quando il piatto è stato eliminato: la riga sopravvive (ON DELETE SET NULL) apposta,
+    -- così lo storico e l'elenco "modifiche dall'ultimo export" continuano a vedere l'eliminazione.
+    piatto_id INT UNSIGNED NULL,
     nome_piatto_snapshot VARCHAR(255) NOT NULL,
     user_id INT UNSIGNED NULL,
     campo VARCHAR(50) NOT NULL,
     valore_precedente TEXT NULL,
     valore_nuovo TEXT NULL,
+    -- Valorizzati solo per campo='eliminazione', per poter ritrovare a quale menu/parte apparteneva
+    -- un piatto ormai eliminato (piatto_id è NULL a quel punto, non più raggiungibile via JOIN).
+    menu_id_snapshot INT UNSIGNED NULL,
+    gruppo_impaginato_snapshot ENUM('principale', 'dolci_drink') NULL,
     creato_il DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_storico_piatto FOREIGN KEY (piatto_id) REFERENCES piatti(id) ON DELETE CASCADE,
+    CONSTRAINT fk_storico_piatto FOREIGN KEY (piatto_id) REFERENCES piatti(id) ON DELETE SET NULL,
     CONSTRAINT fk_storico_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_storico_piatto (piatto_id, creato_il)
+    INDEX idx_storico_piatto (piatto_id, creato_il),
+    INDEX idx_storico_eliminazioni (menu_id_snapshot, gruppo_impaginato_snapshot, creato_il)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS impostazioni (
