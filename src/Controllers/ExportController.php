@@ -46,7 +46,7 @@ class ExportController
 
     public function indesignMenu(array $params): void
     {
-        Auth::requireLogin();
+        Auth::requireAdmin();
         $menu = $this->menuRepo->find((int) $params['id']);
         if (!$menu) {
             http_response_code(404);
@@ -73,7 +73,7 @@ class ExportController
 
     public function indesignFile(array $params): void
     {
-        Auth::requireLogin();
+        Auth::requireAdmin();
         $menu = $this->menuRepo->find((int) $params['id']);
         $gruppo = $params['gruppo'] === 'dolci_drink' ? 'dolci_drink' : 'principale';
         if (!$menu) {
@@ -98,7 +98,7 @@ class ExportController
      */
     public function segnaAllineato(array $params): void
     {
-        Auth::requireLogin();
+        Auth::requireAdmin();
         Csrf::verifyOrFail();
         $menu = $this->menuRepo->find((int) $params['id']);
         $gruppo = $params['gruppo'] === 'dolci_drink' ? 'dolci_drink' : 'principale';

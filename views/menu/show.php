@@ -40,7 +40,9 @@ if (!empty($partiConModifiche)):
         <div style="flex:1;"></div>
         <a class="btn btn-secondario" href="/menu/<?= (int) $menu['id'] ?>/stampa">Anteprima/stampa</a>
         <a class="btn btn-secondario" href="/menu/<?= (int) $menu['id'] ?>/export/csv">Export CSV</a>
+        <?php if (Auth::isAdmin()): ?>
         <a class="btn btn-secondario" href="/menu/<?= (int) $menu['id'] ?>/export/indesign">Export InDesign</a>
+        <?php endif; ?>
     </div>
 </div>
 

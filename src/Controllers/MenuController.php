@@ -65,7 +65,9 @@ class MenuController
             'portate' => $portate,
             'piattiPerPortata' => $piattiPerPortata,
             'soloLettura' => $menu['stato'] === 'archiviato',
-            'statoExport' => $this->indesignService->statoExport($menu),
+            // L'export InDesign è riservato agli admin: niente senso calcolare/mostrare
+            // l'avviso "modifiche non esportate" a chi non può comunque aprire quella pagina.
+            'statoExport' => Auth::isAdmin() ? $this->indesignService->statoExport($menu) : [],
         ]);
     }
 
