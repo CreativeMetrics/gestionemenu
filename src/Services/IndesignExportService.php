@@ -44,7 +44,11 @@ class IndesignExportService
 
     /**
      * Stato dell'export per le due parti del menu: quando è stato scaricato l'ultimo file (o mai)
-     * e se da allora ci sono modifiche ai piatti che quel file non contiene ancora.
+     * e se da allora ci sono modifiche ai piatti che quel file non contiene ancora. "ha_modifiche"
+     * ha senso solo se un export è già stato fatto (serve un confronto): un menu MAI esportato non
+     * lo segnala come "modifiche mancanti" - lo dice già "Non ancora esportato", non serve un
+     * secondo avviso ridondante e per di più senza un elenco a supporto (non c'è nulla da
+     * confrontare, quindi nulla da mostrare).
      * @param array<string, mixed> $menu riga della tabella menus
      * @return array<string, array{esportato_il: ?string, ha_modifiche: bool}>
      */
@@ -54,7 +58,7 @@ class IndesignExportService
         foreach (['principale', 'dolci_drink'] as $gruppo) {
             $esportatoIl = $gruppo === 'dolci_drink' ? $menu['export_dolci_drink_il'] : $menu['export_principale_il'];
             if ($esportatoIl === null) {
-                $haModifiche = $this->contaPiatti((int) $menu['id'], $gruppo) > 0;
+                $haModifiche = false;
             } else {
                 $m = $this->modifiche((int) $menu['id'], $gruppo, $esportatoIl);
                 $haModifiche = $m['nuovi'] !== [] || $m['modificati'] !== [] || $m['rimossi'] !== [];
@@ -62,17 +66,6 @@ class IndesignExportService
             $stato[$gruppo] = ['esportato_il' => $esportatoIl, 'ha_modifiche' => $haModifiche];
         }
         return $stato;
-    }
-
-    private function contaPiatti(int $menuId, string $gruppo): int
-    {
-        $n = 0;
-        foreach ($this->portataRepo->forMenu($menuId) as $portata) {
-            if ($portata['gruppo_impaginato'] === $gruppo) {
-                $n += count($this->piattoRepo->forPortata((int) $portata['id']));
-            }
-        }
-        return $n;
     }
 
     /**
