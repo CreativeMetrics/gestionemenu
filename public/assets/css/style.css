@@ -250,12 +250,7 @@ button:hover, .btn:hover { background: var(--colore-primario-scuro); }
    solo sotto i 700px: sopra si usa "Apri scheda" come tutto il resto. */
 .foto-rapida { margin: 0; }
 .foto-rapida input[type=file] {
-    position: absolute;
-    width: 1px; height: 1px;
-    padding: 0; margin: -1px;
-    overflow: hidden;
-    border: 0;
-    clip: rect(0, 0, 0, 0);
+    display: none !important;
 }
 .piatto-thumb-carica { pointer-events: none; }
 @media (max-width: 700px) {
