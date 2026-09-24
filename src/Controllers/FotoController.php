@@ -52,7 +52,15 @@ class FotoController
         $this->imageService->elimina($piatto['foto_path']);
         $this->piattoRepo->setFoto($id, $nomeFile);
         flash('ok', 'Foto caricata.');
-        redirect('/piatti/' . $id . '#foto');
+
+        // Il tocco rapido sul segnaposto "no foto" nella lista del menu (da mobile) riporta alla
+        // lista invece che alla scheda: chi sta fotografando i piatti uno dopo l'altro può
+        // continuare senza uscire e rientrare ogni volta.
+        if (($_POST['origine'] ?? '') === 'menu') {
+            redirect('/menu/' . $piatto['menu_id']);
+        } else {
+            redirect('/piatti/' . $id . '#foto');
+        }
     }
 
     public function rimuovi(array $params): void

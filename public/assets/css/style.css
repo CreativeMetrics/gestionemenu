@@ -245,6 +245,23 @@ button:hover, .btn:hover { background: var(--colore-primario-scuro); }
 }
 .sortable-ghost { opacity: 0.4; }
 
+/* Il segnaposto "no foto" diventa un tasto per caricare subito una foto col cellulare, ma solo
+   quando non c'è ancora nessuna foto (per sostituirla si passa sempre dalla scheda del piatto) e
+   solo sotto i 700px: sopra si usa "Apri scheda" come tutto il resto. */
+.foto-rapida { margin: 0; }
+.foto-rapida input[type=file] {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+}
+.piatto-thumb-carica { pointer-events: none; }
+@media (max-width: 700px) {
+    .piatto-thumb-carica { pointer-events: auto; cursor: pointer; background: #fdf3e7; }
+}
+
 table.tabella-semplice { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 table.tabella-semplice th, table.tabella-semplice td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--colore-bordo); }
 

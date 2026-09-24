@@ -91,6 +91,13 @@ if (!empty($partiConModifiche)):
                         <img class="piatto-thumb" src="/uploads/piatti/<?= e($piatto['foto_path']) ?>" alt="">
                     <?php elseif (!empty($piatto['foto_esterna'])): ?>
                         <div class="piatto-thumb-placeholder" title="Foto già presente altrove">foto esterna</div>
+                    <?php elseif (!$soloLettura): ?>
+                        <form method="post" action="/piatti/<?= (int) $piatto['id'] ?>/foto" enctype="multipart/form-data" class="foto-rapida no-print">
+                            <?= Csrf::field() ?>
+                            <input type="hidden" name="origine" value="menu">
+                            <label class="piatto-thumb-placeholder piatto-thumb-carica" for="foto-rapida-<?= (int) $piatto['id'] ?>">no foto</label>
+                            <input type="file" id="foto-rapida-<?= (int) $piatto['id'] ?>" name="foto" accept="image/*" onchange="this.form.submit()">
+                        </form>
                     <?php else: ?>
                         <div class="piatto-thumb-placeholder">no foto</div>
                     <?php endif; ?>
