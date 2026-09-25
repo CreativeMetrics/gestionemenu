@@ -18,6 +18,12 @@ use App\Support\Router;
 $config = require __DIR__ . '/../config/config.php';
 date_default_timezone_set($config['app']['timezone'] ?? 'Europe/Rome');
 
+// Le pagine sono generate al volo ad ogni richiesta: senza queste intestazioni alcuni browser
+// mobili (in particolare Safari su iOS) tengono in cache l'HTML stesso, continuando a puntare
+// alle versioni vecchie di CSS/JS anche dopo che i file sono stati aggiornati sul server.
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',
