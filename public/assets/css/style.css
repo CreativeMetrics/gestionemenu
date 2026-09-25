@@ -328,6 +328,9 @@ table.tabella-semplice th, table.tabella-semplice td { text-align: left; padding
 /* Anteprima rapida di un piatto, aperta toccando la sua riga da mobile: foto/prezzo/allergeni
    senza cambiare pagina, con un link per aprire la scheda completa se serve modificare altro. */
 .scheda-rapida[hidden] { display: none; }
+/* Impedisce allo sfondo di scorrere mentre l'anteprima è aperta: senza, lo "strappo" elastico
+   dello scroll su mobile lascia intravedere per un attimo lo sfondo della pagina dietro. */
+body.scheda-rapida-aperta { overflow: hidden; }
 .scheda-rapida { position: fixed; inset: 0; z-index: 50; }
 .scheda-rapida-sfondo { position: absolute; inset: 0; background: rgba(43, 36, 29, .45); border: none; padding: 0; margin: 0; width: 100%; height: 100%; }
 .scheda-rapida-pannello {

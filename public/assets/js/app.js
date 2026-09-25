@@ -154,10 +154,12 @@
             link.href = elLink ? elLink.href : '#';
 
             sheet.hidden = false;
+            document.body.classList.add('scheda-rapida-aperta');
         }
 
         function chiudi() {
             sheet.hidden = true;
+            document.body.classList.remove('scheda-rapida-aperta');
         }
     }
 
