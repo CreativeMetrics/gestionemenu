@@ -73,4 +73,29 @@ class StoricoRepository
         $stmt->execute([$piattoId, $dal]);
         return $stmt->fetchAll();
     }
+
+    /**
+     * Modifiche fatte da editor (non admin) non ancora incluse in un digest email, per
+     * cron/notifica_modifiche.php. @return array<int, array<string, mixed>>
+     */
+    public function nonNotificatePerEditor(): array
+    {
+        $sql = "SELECT s.*, u.nome AS user_nome
+                FROM piatto_storico s
+                JOIN users u ON u.id = s.user_id
+                WHERE s.notificato_il IS NULL AND u.ruolo = 'editor'
+                ORDER BY s.user_id, s.creato_il ASC";
+        return Db::conn()->query($sql)->fetchAll();
+    }
+
+    /** @param array<int, int> $ids */
+    public function segnaNotificate(array $ids): void
+    {
+        if ($ids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = Db::conn()->prepare("UPDATE piatto_storico SET notificato_il = NOW() WHERE id IN ($placeholders)");
+        $stmt->execute($ids);
+    }
 }

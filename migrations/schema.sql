@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     nome VARCHAR(100) NOT NULL,
     ruolo ENUM('admin', 'editor') NOT NULL DEFAULT 'editor',
     attivo TINYINT(1) NOT NULL DEFAULT 1,
+    -- Solo per gli admin: riceve il digest email delle modifiche fatte dagli editor (cron/notifica_modifiche.php).
+    notifiche_email TINYINT(1) NOT NULL DEFAULT 0,
     creato_il DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -94,6 +96,9 @@ CREATE TABLE IF NOT EXISTS piatto_storico (
     menu_id_snapshot INT UNSIGNED NULL,
     gruppo_impaginato_snapshot ENUM('principale', 'dolci_drink') NULL,
     creato_il DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Valorizzato quando la riga è stata inclusa in un digest email inviato agli admin
+    -- (cron/notifica_modifiche.php): NULL = non ancora notificata.
+    notificato_il DATETIME NULL,
     CONSTRAINT fk_storico_piatto FOREIGN KEY (piatto_id) REFERENCES piatti(id) ON DELETE SET NULL,
     CONSTRAINT fk_storico_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_storico_piatto (piatto_id, creato_il),

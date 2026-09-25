@@ -74,6 +74,15 @@ class UserController
         redirect('/impostazioni/utenti');
     }
 
+    public function toggleNotifiche(array $params): void
+    {
+        Auth::requireAdmin();
+        Csrf::verifyOrFail();
+        $id = (int) $params['id'];
+        $this->userRepo->setNotificheEmail($id, !empty($_POST['notifiche_email']));
+        redirect('/impostazioni/utenti');
+    }
+
     public function reimpostaPassword(array $params): void
     {
         Auth::requireAdmin();

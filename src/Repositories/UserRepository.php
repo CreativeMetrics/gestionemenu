@@ -44,10 +44,12 @@ class UserRepository
 
     public function create(string $nome, string $email, string $password, string $ruolo): int
     {
+        // I nuovi admin partono con le notifiche email già attive (possono disattivarle da
+        // Impostazioni → Utenti); per gli editor il flag non ha effetto, non le ricevono comunque.
         $stmt = Db::conn()->prepare(
-            'INSERT INTO users (nome, email, password_hash, ruolo) VALUES (?, ?, ?, ?)'
+            'INSERT INTO users (nome, email, password_hash, ruolo, notifiche_email) VALUES (?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$nome, $email, password_hash($password, PASSWORD_DEFAULT), $ruolo]);
+        $stmt->execute([$nome, $email, password_hash($password, PASSWORD_DEFAULT), $ruolo, $ruolo === 'admin' ? 1 : 0]);
         return (int) Db::conn()->lastInsertId();
     }
 
@@ -74,5 +76,19 @@ class UserRepository
         $stmt = Db::conn()->prepare('SELECT id FROM users WHERE email = ?');
         $stmt->execute([$email]);
         return (bool) $stmt->fetchColumn();
+    }
+
+    public function setNotificheEmail(int $id, bool $attivo): void
+    {
+        $stmt = Db::conn()->prepare('UPDATE users SET notifiche_email = ? WHERE id = ?');
+        $stmt->execute([$attivo ? 1 : 0, $id]);
+    }
+
+    /** Admin attivi che hanno scelto di ricevere il digest email delle modifiche. @return array<int, array<string, mixed>> */
+    public function adminsDaNotificare(): array
+    {
+        return Db::conn()
+            ->query("SELECT * FROM users WHERE ruolo = 'admin' AND attivo = 1 AND notifiche_email = 1")
+            ->fetchAll();
     }
 }

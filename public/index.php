@@ -98,6 +98,7 @@ $router->get('/impostazioni/utenti', fn () => (new UserController())->index());
 $router->post('/impostazioni/utenti', fn () => (new UserController())->crea());
 $router->post('/impostazioni/utenti/{id}/attiva-disattiva', fn ($p) => (new UserController())->attivaDisattiva($p));
 $router->post('/impostazioni/utenti/{id}/ruolo', fn ($p) => (new UserController())->cambiaRuolo($p));
+$router->post('/impostazioni/utenti/{id}/notifiche', fn ($p) => (new UserController())->toggleNotifiche($p));
 $router->post('/impostazioni/utenti/{id}/password', fn ($p) => (new UserController())->reimpostaPassword($p));
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

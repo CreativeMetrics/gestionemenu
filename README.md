@@ -104,7 +104,24 @@ frequenza su giornaliera (es. ogni notte alle 4:00). Lo script:
   ordine, foto);
 - è idempotente: se il menu esiste già non fa nulla, quindi eseguirlo ogni giorno è sicuro.
 
-### 1.6 Backup
+### 1.6 Cron: notifiche email delle modifiche fatte dagli editor
+
+Non serve SSH: in Plesk → **Pianifica attività**, "Aggiungi attività", "Esegui un file PHP",
+seleziona `cron/notifica_modifiche.php`, e imposta la frequenza **ogni 15-30 minuti**. Lo script:
+
+- controlla se un utente **editor** (non admin) ha creato, modificato o eliminato dei piatti
+  dall'ultima esecuzione;
+- se sì, manda **una sola email di riepilogo** (non una per ogni modifica) agli admin che hanno
+  attivato la casella "Notifiche" in Impostazioni → Utenti — per email serve che Plesk abbia la
+  posta configurata per il dominio (di norma è già così);
+- è idempotente: ogni modifica viene notificata una volta sola, quindi eseguirlo più spesso del
+  necessario non causa email doppie; un ritardo di 15-30 minuti tra la modifica e l'email è normale.
+
+Il primo admin creato con `/setup` (o con `cron/crea_utente.php`) parte con le notifiche già
+attive; per gli admin creati prima di questa funzione, o per riattivarle/disattivarle, si usa la
+casella in Impostazioni → Utenti.
+
+### 1.7 Backup
 
 Nessuno dei due richiede SSH:
 

@@ -3,7 +3,7 @@
 
 <div class="tabella-scroll">
 <table class="tabella-semplice">
-    <thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th></th></tr></thead>
+    <thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Notifiche</th><th>Stato</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($utenti as $u): ?>
         <tr>
@@ -17,6 +17,19 @@
                         <option value="admin" <?= $u['ruolo'] === 'admin' ? 'selected' : '' ?>>admin</option>
                     </select>
                 </form>
+            </td>
+            <td>
+                <?php if ($u['ruolo'] === 'admin'): ?>
+                    <form method="post" action="/impostazioni/utenti/<?= (int) $u['id'] ?>/notifiche" style="display:inline;">
+                        <?= Csrf::field() ?>
+                        <label style="font-weight:400; white-space:nowrap;">
+                            <input type="checkbox" name="notifiche_email" value="1" onchange="this.form.submit()" <?= $u['notifiche_email'] ? 'checked' : '' ?>>
+                            modifiche editor
+                        </label>
+                    </form>
+                <?php else: ?>
+                    <span class="help-text">—</span>
+                <?php endif; ?>
             </td>
             <td><?= $u['attivo'] ? 'attivo' : 'disattivato' ?></td>
             <td>
