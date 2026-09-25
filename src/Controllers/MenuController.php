@@ -65,6 +65,8 @@ class MenuController
             'portate' => $portate,
             'piattiPerPortata' => $piattiPerPortata,
             'soloLettura' => $menu['stato'] === 'archiviato',
+            // Pagina più larga del solito per fare spazio alla barra laterale delle portate (desktop).
+            'mainLargo' => true,
             // L'export InDesign è riservato agli admin: niente senso calcolare/mostrare
             // l'avviso "modifiche non esportate" a chi non può comunque aprire quella pagina.
             'statoExport' => Auth::isAdmin() ? $this->indesignService->statoExport($menu) : [],

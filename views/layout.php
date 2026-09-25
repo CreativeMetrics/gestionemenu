@@ -36,7 +36,7 @@ $nomeLocale = config_get('app', [])['nome_locale'] ?? 'Gestione Menu';
     </nav>
     <?php endif; ?>
 </header>
-<main>
+<main<?= !empty($mainLargo) ? ' class="main-largo"' : '' ?>>
     <?php foreach (Flash::pull() as $f): ?>
         <div class="flash flash-<?= e($f['tipo']) ?>"><?= e($f['messaggio']) ?></div>
     <?php endforeach; ?>

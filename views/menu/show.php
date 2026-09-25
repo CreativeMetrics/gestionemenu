@@ -3,6 +3,18 @@ use App\Csrf;
 use App\Auth;
 
 $titolo = stagione_label($menu['stagione']) . ' ' . $menu['anno'];
+
+$totalePiatti = 0;
+$senzaFoto = 0;
+foreach ($portate as $p) {
+    foreach ($piattiPerPortata[$p['id']] as $pt) {
+        $totalePiatti++;
+        if (empty($pt['foto_path']) && empty($pt['foto_esterna'])) {
+            $senzaFoto++;
+        }
+    }
+}
+$percentualeConFoto = $totalePiatti > 0 ? (int) round((($totalePiatti - $senzaFoto) / $totalePiatti) * 100) : 100;
 ?>
 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
     <h1 style="margin-bottom:0;"><?= e($titolo) ?> <span class="<?= stato_badge_class($menu['stato']) ?>"><?= e(stato_label($menu['stato'])) ?></span></h1>
@@ -18,6 +30,28 @@ if (!empty($partiConModifiche)):
     <a href="/menu/<?= (int) $menu['id'] ?>/export/indesign">Vai all'export →</a>
 </div>
 <?php endif; ?>
+
+<div class="menu-layout">
+<aside class="menu-sidebar no-print">
+    <div class="menu-sidebar-titolo">Portate</div>
+    <nav class="menu-sidebar-nav">
+        <?php foreach ($portate as $p): ?>
+            <a href="#portata-<?= (int) $p['id'] ?>">
+                <span><?= e($p['nome']) ?></span>
+                <span class="menu-sidebar-conteggio"><?= count($piattiPerPortata[$p['id']]) ?></span>
+            </a>
+        <?php endforeach; ?>
+    </nav>
+    <?php if ($totalePiatti > 0): ?>
+    <div class="menu-sidebar-riepilogo">
+        <div class="menu-sidebar-riepilogo-testo">
+            <?= $totalePiatti ?> piatt<?= $totalePiatti === 1 ? 'o' : 'i' ?><?php if ($senzaFoto > 0): ?> · <?= $senzaFoto ?> senza foto<?php endif; ?>
+        </div>
+        <div class="menu-sidebar-barra"><div style="width:<?= $percentualeConFoto ?>%;"></div></div>
+    </div>
+    <?php endif; ?>
+</aside>
+<div class="menu-main">
 
 <div class="card no-print">
     <div class="form-riga" style="align-items:center;">
@@ -51,9 +85,17 @@ if (!empty($partiConModifiche)):
     <input type="search" id="ricerca-piatti" placeholder="Nome, descrizione o allergene…" autocomplete="off">
 </div>
 
+<?php if (count($portate) > 1): ?>
+<div class="portate-pills no-print">
+    <?php foreach ($portate as $p): ?>
+        <a href="#portata-<?= (int) $p['id'] ?>"><?= e($p['nome']) ?></a>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
 <div id="portate-container" data-csrf="<?= e(Csrf::token()) ?>">
 <?php foreach ($portate as $portata): ?>
-    <div class="portata-blocco">
+    <div class="portata-blocco" id="portata-<?= (int) $portata['id'] ?>">
         <div class="portata-titolo">
             <h2><?= e($portata['nome']) ?> <small style="font-weight:400; color:#8a7f6c;">(<?= $portata['gruppo_impaginato'] === 'principale' ? 'menu principale' : 'dolci &amp; drink' ?>)</small></h2>
             <?php if (!$soloLettura): ?>
@@ -123,6 +165,9 @@ if (!empty($partiConModifiche)):
                             </div>
                         </div>
                     </div>
+                    <span class="piatto-chevron no-print" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -155,3 +200,26 @@ if (!empty($partiConModifiche)):
     </form>
 </div>
 <?php endif; ?>
+
+</div>
+</div>
+
+<div id="scheda-rapida" class="scheda-rapida no-print" hidden>
+    <button type="button" class="scheda-rapida-sfondo" aria-label="Chiudi anteprima"></button>
+    <div class="scheda-rapida-pannello" role="dialog" aria-modal="true" aria-label="Anteprima piatto">
+        <div class="scheda-rapida-maniglia"></div>
+        <div class="scheda-rapida-foto" hidden></div>
+        <div class="scheda-rapida-testa">
+            <div class="scheda-rapida-nome"></div>
+            <div class="scheda-rapida-prezzo"></div>
+        </div>
+        <div class="scheda-rapida-desc" hidden></div>
+        <div class="scheda-rapida-allergeni"></div>
+        <div class="scheda-rapida-azioni">
+            <a class="btn scheda-rapida-link" href="#">Modifica scheda completa</a>
+            <button type="button" class="btn btn-secondario scheda-rapida-chiudi" aria-label="Chiudi">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
