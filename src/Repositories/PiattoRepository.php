@@ -190,4 +190,23 @@ class PiattoRepository
         $stmt->execute([$menuId]);
         return $stmt->fetchAll();
     }
+
+    public function contaPerMenu(int $menuId): int
+    {
+        $stmt = Db::conn()->prepare(
+            'SELECT COUNT(*) FROM piatti p JOIN portate po ON po.id = p.portata_id WHERE po.menu_id = ?'
+        );
+        $stmt->execute([$menuId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function contaSenzaFotoPerMenu(int $menuId): int
+    {
+        $stmt = Db::conn()->prepare(
+            'SELECT COUNT(*) FROM piatti p JOIN portate po ON po.id = p.portata_id
+             WHERE po.menu_id = ? AND (p.foto_path IS NULL OR p.foto_path = "") AND p.foto_esterna = 0'
+        );
+        $stmt->execute([$menuId]);
+        return (int) $stmt->fetchColumn();
+    }
 }

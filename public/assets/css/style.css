@@ -351,6 +351,50 @@ body.scheda-rapida-aperta { overflow: hidden; }
     .scheda-rapida { display: none !important; }
 }
 
+/* Dashboard della home: due impaginazioni diverse invece di una sola adattata, perché mobile
+   (card in evidenza + scorciatoie) e desktop (griglia + pannello statistiche) mostrano le stesse
+   informazioni in un ordine e con un peso visivo abbastanza diversi. */
+.dash-desktop { display: none; }
+.dash-hero, .dash-azione, .dash-riga-compatta, .dash-desktop-card {
+    text-decoration: none;
+    color: inherit;
+}
+
+.dash-hero { display: block; background: var(--colore-primario-scuro); color: #fff; border-radius: 16px; padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
+.dash-hero-label { font-size: 0.72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #e6d3bd; margin-bottom: 0.3rem; }
+.dash-hero-riga { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+.dash-hero-titolo { font-weight: 700; font-size: 1.25rem; }
+.dash-hero-meta { font-size: 0.85rem; color: #e6d3bd; margin-bottom: 1rem; }
+.dash-hero-bottone { display: block; background: #fff; color: var(--colore-primario-scuro); text-align: center; font-weight: 700; font-size: 0.92rem; padding: 0.7rem; border-radius: 10px; }
+
+.dash-azioni-rapide { display: flex; gap: 0.6rem; margin-bottom: 1.2rem; }
+.dash-azione { flex: 1; background: #fff; border: 1px solid var(--colore-bordo); border-radius: 12px; padding: 0.7rem 0.4rem; text-align: center; color: var(--colore-primario-scuro); }
+.dash-azione svg { display: block; margin: 0 auto 0.35rem; }
+.dash-azione span { font-size: 0.7rem; font-weight: 600; line-height: 1.2; display: block; }
+
+.dash-sottotitolo { font-size: 0.72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a7f6c; margin: 0 0.2rem 0.5rem; }
+.dash-riga-compatta { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--colore-bordo); border-radius: 12px; padding: 0.75rem 0.9rem; margin-bottom: 0.5rem; font-weight: 600; }
+
+@media (min-width: 901px) {
+    .dash-mobile { display: none; }
+    .dash-desktop { display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 1rem; }
+    .dash-desktop-principale { flex: 1; min-width: 0; }
+    .dash-desktop-titolo-riga { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .dash-desktop-griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; }
+    .dash-desktop-card { display: block; background: #fff; border: 1px solid var(--colore-bordo); border-radius: 14px; padding: 1.1rem; }
+    .dash-desktop-card-corrente { background: var(--colore-primario-scuro); color: #fff; border-color: var(--colore-primario-scuro); }
+    .dash-desktop-card-corrente .dash-hero-label { margin-bottom: 0.4rem; }
+    .dash-desktop-card-titolo { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+
+    .dash-desktop-pannello { width: 260px; flex-shrink: 0; background: #fff; border: 1px solid var(--colore-bordo); border-radius: var(--radius); padding: 1.2rem; }
+    .dash-desktop-pannello-titolo { font-size: 0.72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a7f6c; margin-bottom: 0.9rem; }
+    .dash-stat { margin-bottom: 0.9rem; }
+    .dash-stat-numero { font-size: 1.6rem; font-weight: 700; color: var(--colore-primario-scuro); line-height: 1.1; }
+    .dash-stat-testo { font-size: 0.78rem; color: #8a7f6c; }
+    .dash-pannello-azioni { border-top: 1px solid var(--colore-bordo); padding-top: 0.9rem; display: flex; flex-direction: column; gap: 0.55rem; }
+    .dash-pannello-azioni a { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--colore-primario-scuro); }
+}
+
 @media print {
     header.app-header, .no-print { display: none !important; }
     body { background: #fff; }

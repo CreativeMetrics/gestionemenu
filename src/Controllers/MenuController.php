@@ -10,6 +10,7 @@ use App\Repositories\PortataRepository;
 use App\Services\IndesignExportService;
 use App\Services\SeasonService;
 use App\Support\View;
+use DateTimeImmutable;
 
 class MenuController
 {
@@ -32,7 +33,41 @@ class MenuController
     {
         Auth::requireLogin();
         $menus = $this->menuRepo->attivi();
-        View::render('menu/index', ['menus' => $menus]);
+        $menuCorrente = $menus[0] ?? null;
+        $altriMenu = array_slice($menus, 1);
+
+        $piattiCorrente = 0;
+        $senzaFotoCorrente = 0;
+        if ($menuCorrente) {
+            $piattiCorrente = $this->piattoRepo->contaPerMenu((int) $menuCorrente['id']);
+            $senzaFotoCorrente = $this->piattoRepo->contaSenzaFotoPerMenu((int) $menuCorrente['id']);
+        }
+
+        // Quanto manca alla creazione automatica della prossima stagione (se non è già stata
+        // creata a mano): solo un'indicazione utile in dashboard, non blocca nulla.
+        $giorniProssimaStagione = null;
+        $prossimaStagioneLabel = null;
+        $ultimo = $this->menuRepo->ultimoEsistente();
+        if ($ultimo) {
+            [$stagioneProssima, $annoProssimo] = $this->seasonService->prossima($ultimo['stagione'], (int) $ultimo['anno']);
+            if ($this->menuRepo->findByStagioneAnno($stagioneProssima, $annoProssimo) === null) {
+                $oggi = new DateTimeImmutable('today');
+                $dataCreazione = $this->seasonService->dataCreazioneAutomatica($stagioneProssima, $annoProssimo);
+                $giorniProssimaStagione = $dataCreazione < $oggi ? 0 : $oggi->diff($dataCreazione)->days;
+                $prossimaStagioneLabel = stagione_label($stagioneProssima) . ' ' . $annoProssimo;
+            }
+        }
+
+        View::render('menu/index', [
+            'menus' => $menus,
+            'menuCorrente' => $menuCorrente,
+            'altriMenu' => $altriMenu,
+            'piattiCorrente' => $piattiCorrente,
+            'senzaFotoCorrente' => $senzaFotoCorrente,
+            'giorniProssimaStagione' => $giorniProssimaStagione,
+            'prossimaStagioneLabel' => $prossimaStagioneLabel,
+            'mainLargo' => true,
+        ]);
     }
 
     public function archivio(): void
